@@ -1,0 +1,7 @@
+bin
+obj
+secrets*
+.terraform
+.terraform.lock.hcl
+.publish
+terraform/modules/keytag/files/
