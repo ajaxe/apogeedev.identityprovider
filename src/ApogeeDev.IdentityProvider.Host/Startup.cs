@@ -1,7 +1,6 @@
-
-using ApogeeDev.IdentityProvider.Host.Data;
+using ApogeeDev.IdentityProvider.Host.Initializers;
 using ApogeeDev.IdentityProvider.Host.Models.Configuration;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using MongoDB.Driver;
 using Quartz;
 using Serilog;
@@ -30,6 +29,10 @@ public class Startup
         services.AddOptions();
         services.Configure<AppOptions>(
                 Configuration.GetSection(AppOptions.SectionName));
+        services.Configure<AppClientOptions>(
+                Configuration.GetSection(AppClientOptions.SectionName));
+        services.Configure<OAuthWebProviderOptions>(
+                Configuration.GetSection(OAuthWebProviderOptions.SectionName));
 
         // Add services to the container.
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -37,6 +40,7 @@ public class Startup
         services.AddSwaggerGen();
 
         services.AddControllers();
+        services.AddHealthChecks();
 
         services.AddQuartz(options =>
         {
@@ -51,17 +55,75 @@ public class Startup
         );
 
         ConfigureOpenIdDictServices(services);
+
+        services.AddAuthorization()
+            .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddCookie();
     }
 
     private void ConfigureOpenIdDictServices(IServiceCollection services)
     {
         services.AddOpenIddict()
-        .AddCore(options =>
+        .AddCore(_ =>
         {
-            options.UseMongoDb();
+            // uses registered IMongoDatabase from DI
+            _.UseMongoDb();
+        })
+        .AddClient(o => ConfigureOpenIdDictClient(o))
+        .AddServer(o => ConfigureOpenIdDictServer(o))
+        .AddValidation(o =>
+        {
+            o.UseLocalServer();
+            o.UseAspNetCore();
+            //o.UseDataProtection(); // map to docker volume
         });
 
         services.AddHostedService<MongoDbPerformanceInitializer>();
+        services.AddHostedService<ApplicationClientInitializer>();
+    }
+
+    private void ConfigureOpenIdDictServer(OpenIddictServerBuilder o)
+    {
+        o.SetAuthorizationEndpointUris("/connect/authorize")
+            .SetTokenEndpointUris("/connect/token")
+            .AllowAuthorizationCodeFlow()
+            .RequireProofKeyForCodeExchange()
+            .AddDevelopmentEncryptionCertificate()
+            .AddDevelopmentSigningCertificate()
+            .UseAspNetCore()
+            .EnableAuthorizationEndpointPassthrough();
+    }
+
+    private void ConfigureOpenIdDictClient(OpenIddictClientBuilder options)
+    {
+        var webProviders = new OAuthWebProviderOptions();
+        Configuration.GetSection(OAuthWebProviderOptions.SectionName)
+            .Bind(webProviders);
+
+        options.AllowAuthorizationCodeFlow()
+            .AllowRefreshTokenFlow()
+            .AddDevelopmentEncryptionCertificate()
+            .AddDevelopmentSigningCertificate()
+            .UseAspNetCore()
+            .EnableStatusCodePagesIntegration()
+            .EnableRedirectionEndpointPassthrough();
+
+        options.UseSystemNetHttp()
+            .SetProductInformation(typeof(Startup).Assembly);
+
+        options.UseWebProviders()
+            .AddGitHub(opts =>
+            {
+                opts.SetClientId(webProviders.Github.ClientId)
+                    .SetClientSecret(webProviders.Github.ClientSecret)
+                    .SetRedirectUri(webProviders.Github.RedirectUri);
+            });
+        /*.AddGoogle(opts =>
+        {
+            opts.SetClientId("")
+                .SetClientSecret("")
+                .SetRedirectUri("callback/login/google");
+        });*/
     }
 
     public void Configure(IApplicationBuilder app)
@@ -71,13 +133,17 @@ public class Startup
         {
             app.UseSwagger();
             app.UseSwaggerUI();
+            app.UseHttpsRedirection();
         }
 
-        app.UseHttpsRedirection();
+        app.UseRouting();
+        app.UseAuthentication();
+        app.UseAuthorization();
 
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();
+            endpoints.MapDefaultControllerRoute();
             endpoints.MapHealthChecks("/healthcheck");
         });
     }

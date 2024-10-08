@@ -1,12 +1,11 @@
 
 using ApogeeDev.IdentityProvider.Host.Models.DatabaseModels;
 using Microsoft.Extensions.Options;
-using MongoDB.Bson;
 using MongoDB.Driver;
 using OpenIddict.MongoDb;
 using OpenIddict.MongoDb.Models;
 
-namespace ApogeeDev.IdentityProvider.Host.Data;
+namespace ApogeeDev.IdentityProvider.Host.Initializers;
 
 internal class MongoDbPerformanceInitializer : BackgroundService
 {
@@ -39,6 +38,18 @@ internal class MongoDbPerformanceInitializer : BackgroundService
         logger.LogInformation("Performance indexing code run: delayed.");
         await Task.Delay(5000);
 
+        try
+        {
+            await Initialize();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error during initialization: {message}", ex.Message);
+        }
+    }
+
+    private async Task Initialize()
+    {
         if (!await ShouldRunScript())
         {
             logger.LogInformation("Performance indexing code is already run.");
