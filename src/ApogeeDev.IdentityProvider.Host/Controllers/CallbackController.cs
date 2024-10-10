@@ -25,7 +25,7 @@ public class CallbackController : ControllerBase
         LogClaims(Providers.GitHub, result);
 
         var identity = new ClaimsIdentity(
-            authenticationType: "ExternalLogin",
+            authenticationType: Providers.GitHub,
             nameType: ClaimTypes.Name,
             roleType: ClaimTypes.Role);
 
@@ -49,7 +49,7 @@ public class CallbackController : ControllerBase
         LogClaims(Providers.Google, result);
 
         var identity = new ClaimsIdentity(
-            authenticationType: "ExternalLogin",
+            authenticationType: Providers.Google,
             nameType: ClaimTypes.Name,
             roleType: ClaimTypes.Role);
 

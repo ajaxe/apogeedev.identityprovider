@@ -39,7 +39,7 @@ public class Startup
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
 
-        services.AddControllers();
+        services.AddControllersWithViews();
         services.AddHealthChecks();
 
         services.AddQuartz(options =>
@@ -59,6 +59,17 @@ public class Startup
         services.AddAuthorization()
             .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie();
+
+        ConfigureAppServices(services);
+    }
+
+    private void ConfigureAppServices(IServiceCollection services)
+    {
+        services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssembly(typeof(Startup).Assembly);
+        });
+        services.AddTransient<ICryptoHelper, CryptoHelper>();
     }
 
     private void ConfigureOpenIdDictServices(IServiceCollection services)
@@ -135,6 +146,8 @@ public class Startup
             app.UseSwaggerUI();
             app.UseHttpsRedirection();
         }
+
+        app.UseStaticFiles();
 
         app.UseRouting();
         app.UseAuthentication();

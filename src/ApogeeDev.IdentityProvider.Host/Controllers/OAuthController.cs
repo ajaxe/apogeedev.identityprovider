@@ -1,4 +1,7 @@
 using System.Security.Claims;
+using ApogeeDev.IdentityProvider.Host.Operations.RequestHandlers;
+using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -12,11 +15,12 @@ namespace ApogeeDev.IdentityProvider.Host.Controllers;
 
 [ApiController]
 [Route("connect")]
-public class OAuthController : ControllerBase
+public class OAuthController : Controller
 {
     [HttpGet("authorize")]
     [HttpPost("authorize")]
-    public async Task<IActionResult> Authorize()
+    public async Task<IActionResult> Authorize([FromQuery(Name = "client_id")] string clientId,
+        [FromServices] IMediator mediator)
     {
         // Resolve the claims stored in the cookie created after the GitHub authentication dance.
         // If the principal cannot be found, trigger a new challenge to redirect the user to GitHub.
@@ -24,30 +28,40 @@ public class OAuthController : ControllerBase
         // For scenarios where the default authentication handler configured in the ASP.NET Core
         // authentication options shouldn't be used, a specific scheme can be specified here.
         var principal = (await HttpContext.AuthenticateAsync())?.Principal;
+
         if (principal is null)
         {
-            var properties = new AuthenticationProperties
+            var vm = await mediator.Send(new LoginViewRequest
             {
-                RedirectUri = HttpContext.Request.GetEncodedUrl()
-            };
+                AuthorizeRedirectUrl = HttpContext.Request.GetEncodedUrl(),
+                ClientId = clientId,
+            });
 
-            return Challenge(properties, [Providers.GitHub]);
+            return View("Login", vm);
         }
 
-        var identifier = principal.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        var signInResult = await mediator.Send(new CreateExternalSignInPrincipalRequest
+        {
+            IdentityProviderName = HttpContext.GetOpenIddictClientRequest()?.IdentityProvider
+                ?? throw new InvalidOperationException("Invalid 'IdentityProvider' in openiddict request"),
+            IncomingExternalPrincipal = principal,
+        });
 
-        // Create the claims-based identity that will be used by OpenIddict to generate tokens.
-        var identity = new ClaimsIdentity(
-            authenticationType: TokenValidationParameters.DefaultAuthenticationType,
-            nameType: Claims.Name,
-            roleType: Claims.Role);
+        return SignIn(signInResult.Principal,
+            properties: signInResult.Properties!,
+            signInResult.AuthenticationScheme);
+    }
 
-        // Import a few select claims from the identity stored in the local cookie.
-        identity.AddClaim(new Claim(Claims.Subject, identifier));
-        identity.AddClaim(new Claim(Claims.Name, identifier).SetDestinations(Destinations.AccessToken));
-        identity.AddClaim(new Claim(Claims.PreferredUsername, identifier).SetDestinations(Destinations.AccessToken));
+    [HttpPost("authorize/github")]
+    [RequireAntiforgeryToken]
+    public IActionResult AuthorizeWithGithub(string encryptedRedirectUrl,
+    [FromServices] ICryptoHelper cryptoHelper)
+    {
+        var properties = new AuthenticationProperties
+        {
+            RedirectUri = cryptoHelper.DecryptAsBase64Url(encryptedRedirectUrl),
+        };
 
-        return SignIn(new ClaimsPrincipal(identity), properties: null,
-            OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+        return Challenge(properties, [Providers.GitHub]);
     }
 }
