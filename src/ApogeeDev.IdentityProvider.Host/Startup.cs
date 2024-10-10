@@ -2,6 +2,7 @@ using ApogeeDev.IdentityProvider.Host.Initializers;
 using ApogeeDev.IdentityProvider.Host.Models.Configuration;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using MongoDB.Driver;
+using OpenIddict.Abstractions;
 using Quartz;
 using Serilog;
 
@@ -95,6 +96,13 @@ public class Startup
 
     private void ConfigureOpenIdDictServer(OpenIddictServerBuilder o)
     {
+        o.RegisterScopes(
+            OpenIddictConstants.Scopes.Address,
+            OpenIddictConstants.Scopes.Profile,
+            OpenIddictConstants.Scopes.Email,
+            OpenIddictConstants.Scopes.Phone,
+            OpenIddictConstants.Scopes.Roles);
+
         o.SetAuthorizationEndpointUris("/connect/authorize")
             .SetTokenEndpointUris("/connect/token")
             .AllowAuthorizationCodeFlow()

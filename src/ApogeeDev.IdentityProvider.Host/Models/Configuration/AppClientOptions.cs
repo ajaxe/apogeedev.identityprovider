@@ -21,10 +21,16 @@ public class AppClient
 
     public IEnumerable<string> GetPermissions()
     {
+        // make this configurable per client
         yield return Permissions.Endpoints.Authorization;
         yield return Permissions.Endpoints.Token;
         yield return Permissions.GrantTypes.AuthorizationCode;
         yield return Permissions.ResponseTypes.Code;
+        yield return Permissions.Scopes.Address;
+        yield return Permissions.Scopes.Email;
+        yield return Permissions.Scopes.Phone;
+        yield return Permissions.Scopes.Profile;
+        yield return Permissions.Scopes.Roles;
     }
 
     private IEnumerable<object> GetMembers()

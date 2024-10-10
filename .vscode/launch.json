@@ -1,0 +1,56 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "idp",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/src/ApogeeDev.IdentityProvider.Host/bin/Debug/net8.0/ApogeeDev.IdentityProvider.Host.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/ApogeeDev.IdentityProvider.Host/",
+      "stopAtEntry": false,
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation"
+      },
+      "sourceFileMap": {
+        "/Views": "${workspaceFolder}/src/ApogeeDev.IdentityProvider.Host/Views"
+      }
+    },
+    {
+      "name": "client",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-client",
+      "program": "${workspaceFolder}/src/TestClient/Velusia.Client/bin/Debug/net8.0/Velusia.Client.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/TestClient/Velusia.Client/",
+      "stopAtEntry": false,
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Debug",
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation"
+      },
+      "sourceFileMap": {
+        "/Views": "${workspaceFolder}/src/TestClient/Velusia.Client/Views"
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "idp/client",
+      "configurations": ["idp", "client"]
+    }
+  ]
+}
