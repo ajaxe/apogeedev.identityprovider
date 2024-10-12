@@ -1,3 +1,4 @@
+using Amazon.Runtime;
 using ApogeeDev.IdentityProvider.Host.Data;
 using ApogeeDev.IdentityProvider.Host.Initializers;
 using ApogeeDev.IdentityProvider.Host.Models.Configuration;
@@ -86,6 +87,7 @@ public class Startup
 
         services.AddTransient<ICryptoHelper, CryptoHelper>();
         services.AddTransient<GithubClaimsProcessor>();
+        services.AddTransient<GoogleClaimsProcessor>();
 
         services.AddDbContext<ApplicationDbContext>(
             (sp, o) => o.UseMongoDB(sp.GetRequiredService<IMongoClient>(),
@@ -133,7 +135,8 @@ public class Startup
             .AddDevelopmentSigningCertificate()
             .UseAspNetCore()
             .EnableAuthorizationEndpointPassthrough()
-            .EnableLogoutEndpointPassthrough();
+            .EnableLogoutEndpointPassthrough()
+            .EnableUserinfoEndpointPassthrough();
     }
 
     private void ConfigureOpenIdDictClient(OpenIddictClientBuilder options)
@@ -158,14 +161,16 @@ public class Startup
             {
                 opts.SetClientId(webProviders.Github.ClientId)
                     .SetClientSecret(webProviders.Github.ClientSecret)
-                    .SetRedirectUri(webProviders.Github.RedirectUri);
+                    .SetRedirectUri(webProviders.Github.RedirectUri)
+                    .AddScopes(webProviders.Github.Scopes);
+            })
+            .AddGoogle(opts =>
+            {
+                opts.SetClientId(webProviders.Google.ClientId)
+                    .SetClientSecret(webProviders.Google.ClientSecret)
+                    .SetRedirectUri(webProviders.Google.RedirectUri)
+                    .AddScopes(webProviders.Google.Scopes);
             });
-        /*.AddGoogle(opts =>
-        {
-            opts.SetClientId("")
-                .SetClientSecret("")
-                .SetRedirectUri("callback/login/google");
-        });*/
     }
 
     public void Configure(IApplicationBuilder app)

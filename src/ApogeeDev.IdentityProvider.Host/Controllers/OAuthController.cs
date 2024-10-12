@@ -70,7 +70,7 @@ public class OAuthController : Controller
     }
     [HttpPost("authorize/google", Name = "AuthorizeWithGoogle")]
     [RequireAntiforgeryToken]
-    public IActionResult AuthorizeWithGoogle(string redirectUrl,
+    public IActionResult AuthorizeWithGoogle([FromForm] string redirectUrl,
         [FromServices] ICryptoHelper cryptoHelper)
     {
         var properties = new AuthenticationProperties
@@ -78,7 +78,7 @@ public class OAuthController : Controller
             RedirectUri = cryptoHelper.DecryptAsBase64Url(redirectUrl),
         };
 
-        return Challenge(properties, [Providers.GitHub]);
+        return Challenge(properties, [Providers.Google]);
     }
 
     [HttpGet("logout")]

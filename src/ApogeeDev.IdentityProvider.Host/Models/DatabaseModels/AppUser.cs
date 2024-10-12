@@ -11,17 +11,17 @@ public class AppUser
 {
     public ObjectId Id { get; set; }
     [BsonElement("username")]
-    public string UserName { get; set; } = default!;
+    public string? UserName { get; set; }
     [BsonElement("subject")]
-    public string Subject { get; set; } = default!;
+    public string? Subject { get; set; }
     [BsonElement("profile_picture")]
-    public string ProfilePicture { get; set; } = default!;
+    public string? ProfilePicture { get; set; }
     [BsonElement("name")]
-    public string Name { get; set; } = default!;
+    public string? Name { get; set; }
     [BsonElement("email")]
-    public string Email { get; set; } = default!;
+    public string? Email { get; set; }
     [BsonElement("identity_provider")]
-    public string IdentityProvider { get; set; } = default!;
+    public string? IdentityProvider { get; set; }
 
     public static AppUser Create(string subject, string idProvider, ClaimsPrincipal principal)
     {

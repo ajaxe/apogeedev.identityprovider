@@ -4,9 +4,8 @@ public static class CustomClaimTypes
 {
     public static class GitHub
     {
-        public static string AvatarUrl { get; } = "avatar_url";
-        public static string IdentityProvider { get; } = "http://schemas.microsoft.com/accesscontrolservice/2010/07/claims/identityprovider";
-        public static string Login { get; } = "login";
+        public const string AvatarUrl = "avatar_url";
+        public const string Login = "login";
     }
     /// <summary>
     /// Custom claims defined by our idp server
@@ -15,6 +14,10 @@ public static class CustomClaimTypes
     /// </summary>
     public static class IdpServer
     {
-        public static string IdP { get; } = "private:idp";
+        public const string IdP = "private:idp";
+    }
+    public static class Common
+    {
+        public const string IdentityProvider = "http://schemas.microsoft.com/accesscontrolservice/2010/07/claims/identityprovider";
     }
 }

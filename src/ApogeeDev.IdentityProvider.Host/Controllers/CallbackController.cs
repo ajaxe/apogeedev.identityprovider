@@ -44,27 +44,25 @@ public class CallbackController : ControllerBase
     }
     [HttpPost("~/callback/login/google")]
     [HttpGet("~/callback/login/google")]
-    public async Task<IActionResult> LogInWithGoogle(string returnUrl)
+    public async Task<IActionResult> LogInWithGoogle(string? returnUrl)
     {
         var result = await HttpContext.AuthenticateAsync(Providers.Google);
 
         LogClaims(Providers.Google, result);
 
-        var identity = new ClaimsIdentity(
-            authenticationType: Providers.Google,
-            nameType: ClaimTypes.Name,
-            roleType: ClaimTypes.Role);
-
-        identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, result.Principal!.FindFirst("id")!.Value));
-
-        var properties = new AuthenticationProperties
+        if (result.Principal is not ClaimsPrincipal { Identity.IsAuthenticated: true })
         {
-            RedirectUri = result.Properties!.RedirectUri
-        };
+            throw new InvalidOperationException("The external authorization data cannot be used for authentication.");
+        }
+
+        var loginResponse = await mediator.Send(new GoogleLoginRequest
+        {
+            LoginResult = result,
+        });
 
         // For scenarios where the default sign-in handler configured in the ASP.NET Core
         // authentication options shouldn't be used, a specific scheme can be specified here.
-        return SignIn(new ClaimsPrincipal(identity), properties);
+        return SignIn(loginResponse.Principal, loginResponse!.Properties);
     }
 
     private void LogClaims(string providerType, AuthenticateResult result)

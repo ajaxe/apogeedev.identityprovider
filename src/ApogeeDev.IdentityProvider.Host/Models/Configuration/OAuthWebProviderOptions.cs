@@ -8,7 +8,7 @@ public class OAuthWebProviderOptions
         Providers.FirstOrDefault(p => string.Compare(p.Name, "github", true) == 0)
         ?? throw new InvalidOperationException("Missing github config");
 
-    public OAuthWebProvider Googel =>
+    public OAuthWebProvider Google =>
         Providers.FirstOrDefault(p => string.Compare(p.Name, "google", true) == 0)
         ?? throw new InvalidOperationException("Missing google config");
 
@@ -18,5 +18,7 @@ public class OAuthWebProviderOptions
         public string ClientId { get; set; } = default!;
         public string ClientSecret { get; set; } = default!;
         public string RedirectUri { get; set; } = default!;
+
+        public string Scopes { get; set; } = default!;
     }
 }
