@@ -2,6 +2,7 @@ using System.Security.Claims;
 using ApogeeDev.IdentityProvider.Host.Data;
 using ApogeeDev.IdentityProvider.Host.Models.Configuration;
 using static OpenIddict.Abstractions.OpenIddictConstants;
+using static OpenIddict.Client.WebIntegration.OpenIddictClientWebIntegrationConstants;
 
 namespace ApogeeDev.IdentityProvider.Host.Operations.Processors;
 
@@ -19,4 +20,9 @@ public class GithubClaimsProcessor : ClaimsProcessorBase
 
     public GithubClaimsProcessor(ApplicationDbContext dbContext,
         ILogger<GithubClaimsProcessor> logger) : base(dbContext, logger) { }
+
+    protected override string GetExternalIdpName()
+    {
+        return Providers.GitHub;
+    }
 }

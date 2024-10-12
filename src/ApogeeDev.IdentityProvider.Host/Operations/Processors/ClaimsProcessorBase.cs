@@ -47,12 +47,13 @@ public abstract class ClaimsProcessorBase : IClaimsProcessor
         var subject = principal.FindFirstValue(ClaimTypes.NameIdentifier)
             ?? throw new InvalidOperationException($"'NameIdentifier' claim missing");
 
+        var idpName = GetExternalIdpName();
         var user = await dbContext.AppUsers.FirstOrDefaultAsync(
-            u => u.Subject == subject && u.IdentityProvider == Providers.GitHub);
+            u => u.Subject == subject && u.IdentityProvider == idpName);
 
         if (user == null)
         {
-            user = AppUser.Create(subject, Providers.GitHub, principal);
+            user = AppUser.Create(subject, idpName, principal);
             dbContext.AppUsers.Add(user);
         }
         else
@@ -79,4 +80,6 @@ public abstract class ClaimsProcessorBase : IClaimsProcessor
 
         await dbContext.SaveChangesAsync();
     }
+
+    protected virtual string GetExternalIdpName() => throw new NotImplementedException();
 }

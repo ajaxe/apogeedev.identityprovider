@@ -86,11 +86,12 @@ public class OAuthController : Controller
     [IgnoreAntiforgeryToken]
     public IActionResult Logout()
     {
+        var request = HttpContext.GetOpenIddictServerRequest();
         return SignOut(
             authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
             properties: new AuthenticationProperties
             {
-                RedirectUri = "/"
+                RedirectUri = request?.PostLogoutRedirectUri ?? "/",
             });
     }
 
@@ -144,7 +145,7 @@ public class OAuthController : Controller
         var user = await dbContext.AppUsers
             .FirstAsync(u => u.Subject == subject && u.IdentityProvider == idp);
 
-        var claims = new Dictionary<string, object>(StringComparer.Ordinal)
+        var claims = new Dictionary<string, object?>(StringComparer.Ordinal)
         {
             // Note: the "sub" claim is a mandatory claim and must be included in the JSON response.
             [Claims.Subject] = user.Subject,
