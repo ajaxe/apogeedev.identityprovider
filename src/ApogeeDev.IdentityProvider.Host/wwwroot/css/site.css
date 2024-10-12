@@ -1,0 +1,7 @@
+.logo {
+  --bs-bg-opacity: 0.7;
+}
+.logo img {
+  max-width: 30px;
+  opacity: 0.8;
+}

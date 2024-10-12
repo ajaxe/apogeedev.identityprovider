@@ -40,7 +40,16 @@ public class Startup
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
 
-        services.AddControllersWithViews();
+        var mvcBuilder = services.AddControllersWithViews();
+
+#if DEBUG
+        // Only use Runtime Compilation on Debug
+        if (Environment.IsDevelopment())
+        {
+            mvcBuilder.AddRazorRuntimeCompilation();
+        }
+#endif
+
         services.AddHealthChecks();
 
         services.AddQuartz(options =>

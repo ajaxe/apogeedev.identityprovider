@@ -1,0 +1,47 @@
+<div class="dropdown position-fixed bottom-0 end-0 mb-3 me-3 bd-mode-toggle">
+        <button class="btn btn-bd-primary py-2 dropdown-toggle d-flex align-items-center" id="bd-theme" type="button"
+            aria-expanded="false" data-bs-toggle="dropdown" aria-label="Toggle theme (dark)">
+            <span class="bi my-1 theme-icon-active" width="1em" height="1em">
+                <i class="bi bi-moon-stars-fill"></i>
+            </span>
+            <span class="visually-hidden" id="bd-theme-text">Toggle theme</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="bd-theme-text" style="">
+            <li>
+                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light"
+                    aria-pressed="false">
+                    <span class="bi me-2 opacity-50" width="1em" height="1em">
+                        <i class="bi bi-sun-fill"></i>
+                    </span>
+                    Light
+                    <span class="bi ms-auto d-none" width="1em" height="1em">
+                        <i class="bi bi-check2"></i>
+                    </span>
+                </button>
+            </li>
+            <li>
+                <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="dark"
+                    aria-pressed="true">
+                    <span class="bi me-2 opacity-50" width="1em" height="1em">
+                        <i class="bi bi-moon-stars-fill"></i>
+                    </span>
+                    Dark
+                    <span class="bi ms-auto d-none" width="1em" height="1em">
+                        <i class="bi bi-check2"></i>
+                    </span>
+                </button>
+            </li>
+            <li>
+                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto"
+                    aria-pressed="false">
+                    <svg class="bi me-2 opacity-50" width="1em" height="1em">
+                        <use href="#circle-half"></use>
+                    </svg>
+                    Auto
+                    <svg class="bi ms-auto d-none" width="1em" height="1em">
+                        <use href="#check2"></use>
+                    </svg>
+                </button>
+            </li>
+        </ul>
+    </div>
