@@ -1,7 +1,10 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.EntityFrameworkCore;
 
 namespace ApogeeDev.IdentityProvider.Host.Models.DatabaseModels;
+
+[Collection(CollectionName)]
 
 public class AppDbSettings
 {

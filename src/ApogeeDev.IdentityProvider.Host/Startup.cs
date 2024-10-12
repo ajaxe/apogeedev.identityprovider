@@ -1,6 +1,10 @@
+using ApogeeDev.IdentityProvider.Host.Data;
 using ApogeeDev.IdentityProvider.Host.Initializers;
 using ApogeeDev.IdentityProvider.Host.Models.Configuration;
+using ApogeeDev.IdentityProvider.Host.Operations.Processors;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using OpenIddict.Abstractions;
 using Quartz;
@@ -79,7 +83,14 @@ public class Startup
         {
             cfg.RegisterServicesFromAssembly(typeof(Startup).Assembly);
         });
+
         services.AddTransient<ICryptoHelper, CryptoHelper>();
+        services.AddTransient<GithubClaimsProcessor>();
+
+        services.AddDbContext<ApplicationDbContext>(
+            (sp, o) => o.UseMongoDB(sp.GetRequiredService<IMongoClient>(),
+                sp.GetRequiredService<IOptions<AppOptions>>().Value.DatabaseName)
+        );
     }
 
     private void ConfigureOpenIdDictServices(IServiceCollection services)
@@ -115,6 +126,7 @@ public class Startup
         o.SetAuthorizationEndpointUris("/connect/authorize")
             .SetTokenEndpointUris("/connect/token")
             .SetLogoutEndpointUris("connect/logout")
+            .SetUserinfoEndpointUris("/connect/userinfo")
             .AllowAuthorizationCodeFlow()
             .RequireProofKeyForCodeExchange()
             .AddDevelopmentEncryptionCertificate()
