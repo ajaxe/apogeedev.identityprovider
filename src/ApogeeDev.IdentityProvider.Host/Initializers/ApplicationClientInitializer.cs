@@ -68,8 +68,9 @@ public class ApplicationClientInitializer : BackgroundService
             ClientType = appClient.ClientType,
         };
 
-        descriptor.RedirectUris.UnionWith(appClient.GetUris());
+        descriptor.RedirectUris.UnionWith(appClient.GetRedirectUris());
         descriptor.Permissions.UnionWith(appClient.GetPermissions());
+        descriptor.PostLogoutRedirectUris.UnionWith(appClient.GetPostLogoutRedirectUris());
 
         return descriptor;
     }

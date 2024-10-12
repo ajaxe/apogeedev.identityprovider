@@ -114,12 +114,14 @@ public class Startup
 
         o.SetAuthorizationEndpointUris("/connect/authorize")
             .SetTokenEndpointUris("/connect/token")
+            .SetLogoutEndpointUris("connect/logout")
             .AllowAuthorizationCodeFlow()
             .RequireProofKeyForCodeExchange()
             .AddDevelopmentEncryptionCertificate()
             .AddDevelopmentSigningCertificate()
             .UseAspNetCore()
-            .EnableAuthorizationEndpointPassthrough();
+            .EnableAuthorizationEndpointPassthrough()
+            .EnableLogoutEndpointPassthrough();
     }
 
     private void ConfigureOpenIdDictClient(OpenIddictClientBuilder options)

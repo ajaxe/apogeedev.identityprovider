@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using OpenIddict.Server.AspNetCore;
 using static OpenIddict.Client.WebIntegration.OpenIddictClientWebIntegrationConstants;
 
 namespace ApogeeDev.IdentityProvider.Host.Controllers;
@@ -70,5 +71,18 @@ public class OAuthController : Controller
         };
 
         return Challenge(properties, [Providers.GitHub]);
+    }
+
+    [HttpGet("logout")]
+    [HttpPost("logout")]
+    [IgnoreAntiforgeryToken]
+    public IActionResult Logout()
+    {
+        return SignOut(
+            authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+            properties: new AuthenticationProperties
+            {
+                RedirectUri = "/"
+            });
     }
 }

@@ -17,13 +17,16 @@ public class AppClient
     public string ClientSecret { get; set; } = default!;
     public string ClientType { get; set; } = default!; // "confidential" or "public"
     public string[] RedirectUris { get; set; } = [];
-    public IEnumerable<Uri> GetUris() => RedirectUris.Select(uri => new Uri(uri));
+    public string[] PostLogoutRedirectUris { get; set; } = [];
+    public IEnumerable<Uri> GetRedirectUris() => RedirectUris.Select(uri => new Uri(uri));
+    public IEnumerable<Uri> GetPostLogoutRedirectUris() => PostLogoutRedirectUris.Select(uri => new Uri(uri));
 
     public IEnumerable<string> GetPermissions()
     {
         // make this configurable per client
         yield return Permissions.Endpoints.Authorization;
         yield return Permissions.Endpoints.Token;
+        yield return Permissions.Endpoints.Logout;
         yield return Permissions.GrantTypes.AuthorizationCode;
         yield return Permissions.ResponseTypes.Code;
         yield return Permissions.Scopes.Address;
