@@ -1,14 +1,9 @@
-using System.Security.Claims;
 using ApogeeDev.IdentityProvider.Host.Operations.RequestHandlers;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using OpenIddict.Abstractions;
-using OpenIddict.Server.AspNetCore;
-using static OpenIddict.Abstractions.OpenIddictConstants;
 using static OpenIddict.Client.WebIntegration.OpenIddictClientWebIntegrationConstants;
 
 namespace ApogeeDev.IdentityProvider.Host.Controllers;
@@ -42,8 +37,8 @@ public class OAuthController : Controller
 
         var signInResult = await mediator.Send(new CreateExternalSignInPrincipalRequest
         {
-            IdentityProviderName = HttpContext.GetOpenIddictClientRequest()?.IdentityProvider
-                ?? throw new InvalidOperationException("Invalid 'IdentityProvider' in openiddict request"),
+            IdentityProviderName = principal.Identity?.AuthenticationType
+                ?? throw new InvalidOperationException("Invalid 'AuthenticationType' in principal"),
             IncomingExternalPrincipal = principal,
         });
 
@@ -52,14 +47,26 @@ public class OAuthController : Controller
             signInResult.AuthenticationScheme);
     }
 
-    [HttpPost("authorize/github")]
+    [HttpPost("authorize/github", Name = "AuthorizeWithGithub")]
     [RequireAntiforgeryToken]
-    public IActionResult AuthorizeWithGithub(string encryptedRedirectUrl,
-    [FromServices] ICryptoHelper cryptoHelper)
+    public IActionResult AuthorizeWithGithub([FromForm] string redirectUrl,
+        [FromServices] ICryptoHelper cryptoHelper)
     {
         var properties = new AuthenticationProperties
         {
-            RedirectUri = cryptoHelper.DecryptAsBase64Url(encryptedRedirectUrl),
+            RedirectUri = cryptoHelper.DecryptAsBase64Url(redirectUrl),
+        };
+
+        return Challenge(properties, [Providers.GitHub]);
+    }
+    [HttpPost("authorize/google", Name = "AuthorizeWithGoogle")]
+    [RequireAntiforgeryToken]
+    public IActionResult AuthorizeWithGoogle(string redirectUrl,
+        [FromServices] ICryptoHelper cryptoHelper)
+    {
+        var properties = new AuthenticationProperties
+        {
+            RedirectUri = cryptoHelper.DecryptAsBase64Url(redirectUrl),
         };
 
         return Challenge(properties, [Providers.GitHub]);

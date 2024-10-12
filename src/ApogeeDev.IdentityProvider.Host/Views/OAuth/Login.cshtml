@@ -1,3 +1,4 @@
+@model LoginViewModel
 @{
     Layout = "";
 }
@@ -22,21 +23,28 @@
         </div>
     </div>
     <main class="form-signin w-100 m-auto text-center">
-        <form>
-            <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
-            <div class="vstack gap-1 mb-5">
-                <div class="p-2">
+
+        <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
+        <div class="vstack gap-1 mb-5">
+            <div class="p-2">
+                <form asp-route="AuthorizeWithGoogle" method="post">
                     <partial name="_GoogleButton" />
-                </div>
-                <div class="p-2">
-                    <button type="button" class="btn btn-light">
+                    <input asp-for="@Model.RedirectUrl" type="hidden" />
+                </form>
+            </div>
+
+            <div class="p-2">
+                <form asp-route="AuthorizeWithGithub" method="post">
+                    <button type="submit" class="btn btn-light">
                         <i class="bi bi-github"></i> Sign in with Github
                     </button>
-                </div>
+                    <input asp-for="@Model.RedirectUrl" type="hidden" />
+                </form>
             </div>
-            <hr />
-            <p class="mt-2 mb-3 text-body-secondary">© 2024</p>
-        </form>
+        </div>
+        <hr />
+        <p class="mt-2 mb-3 text-body-secondary">© 2024</p>
+
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@@popperjs/core@2.11.8/dist/umd/popper.min.js"
