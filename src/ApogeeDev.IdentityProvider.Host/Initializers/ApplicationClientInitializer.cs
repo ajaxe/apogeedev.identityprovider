@@ -32,17 +32,28 @@ public class ApplicationClientInitializer : BackgroundService
         logger.LogInformation("Inserting application clients on start-up");
         var currentValue = optionsMonitor.CurrentValue;
 
-        await AddOrUpdateAppClient(currentValue);
+        await TryAddOrUpdateAppClient(currentValue);
 
         optionsMonitor.OnChange(async (current) =>
         {
             logger.LogInformation("Inserting application clients on config change.");
-            await AddOrUpdateAppClient(current);
+            await TryAddOrUpdateAppClient(current);
         });
 
         while (!stoppingToken.IsCancellationRequested) await Task.Delay(5000);
     }
 
+    private async Task TryAddOrUpdateAppClient(AppClientOptions currentValue)
+    {
+        try
+        {
+            await AddOrUpdateAppClient(currentValue);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error add/update app clients");
+        }
+    }
     private async Task AddOrUpdateAppClient(AppClientOptions currentValue)
     {
         await using var scope = serviceProvider.CreateAsyncScope();

@@ -82,9 +82,12 @@ public class OAuthController : Controller
     [HttpGet("logout")]
     [HttpPost("logout")]
     [IgnoreAntiforgeryToken]
-    public IActionResult Logout()
+    public async Task<IActionResult> Logout()
     {
         var request = HttpContext.GetOpenIddictServerRequest();
+
+        await HttpContext.SignOutAsync();
+
         return SignOut(
             authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
             properties: new AuthenticationProperties
