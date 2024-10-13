@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using ApogeeDev.IdentityProvider.Host.Data;
 using ApogeeDev.IdentityProvider.Host.Models.Configuration;
 using ApogeeDev.IdentityProvider.Host.Operations.RequestHandlers;
@@ -9,7 +8,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
 using static OpenIddict.Abstractions.OpenIddictConstants;
