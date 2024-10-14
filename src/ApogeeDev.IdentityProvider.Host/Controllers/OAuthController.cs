@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using ApogeeDev.IdentityProvider.Host.Data;
 using ApogeeDev.IdentityProvider.Host.Models.Configuration;
 using ApogeeDev.IdentityProvider.Host.Operations.RequestHandlers;
@@ -149,10 +150,13 @@ public class OAuthController : Controller
         var claims = new Dictionary<string, object?>(StringComparer.Ordinal)
         {
             // Note: the "sub" claim is a mandatory claim and must be included in the JSON response.
+            [ClaimTypes.NameIdentifier] = user.Subject,
             [Claims.Subject] = user.Subject,
             [Claims.Username] = user.UserName,
+            [ClaimTypes.Name] = user.Name,
             [Claims.Name] = user.Name,
             [Claims.Email] = user.Email,
+            [ClaimTypes.Email] = user.Email,
             [Claims.Picture] = user.ProfilePicture,
             [CustomClaimTypes.IdpServer.IdP] = user.IdentityProvider,
         };
