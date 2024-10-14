@@ -4,6 +4,8 @@ using ApogeeDev.IdentityProvider.Host.Initializers;
 using ApogeeDev.IdentityProvider.Host.Models.Configuration;
 using ApogeeDev.IdentityProvider.Host.Operations.Processors;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
@@ -15,6 +17,8 @@ namespace ApogeeDev.IdentityProvider.Host;
 
 public class Startup
 {
+    public const string EnvVarPrefix = "APP_";
+
     public Startup(ConfigurationManager configuration, IWebHostEnvironment environment)
     {
         Configuration = configuration;
@@ -26,6 +30,12 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
+        if (!Environment.IsDevelopment())
+        {
+            services.AddDataProtection()
+                .PersistKeysToFileSystem(new DirectoryInfo("/dpapi-keys/"));
+        }
+
         var appOptions = new AppOptions();
         Configuration.GetSection(AppOptions.SectionName)
             .Bind(appOptions);
@@ -54,6 +64,16 @@ public class Startup
             mvcBuilder.AddRazorRuntimeCompilation();
         }
 #endif
+
+
+        services.Configure<ForwardedHeadersOptions>(options =>
+        {
+            options.ForwardedHeaders =
+                ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            options.RequireHeaderSymmetry = false;
+            options.KnownNetworks.Clear();
+            options.KnownProxies.Clear();
+        });
 
         services.AddHealthChecks();
 
@@ -175,6 +195,18 @@ public class Startup
 
     public void Configure(IApplicationBuilder app)
     {
+        string appPrefix = System.Environment.GetEnvironmentVariable($"{EnvVarPrefix}AppPathPrefix") ?? string.Empty;
+
+        app.UseForwardedHeaders();
+
+        if (!string.IsNullOrWhiteSpace(appPrefix))
+        {
+            app.Use((context, next) =>
+            {
+                context.Request.PathBase = appPrefix;
+                return next();
+            });
+        }
         // Configure the HTTP request pipeline.
         if (Environment.IsDevelopment())
         {

@@ -1,0 +1,4 @@
+.git
+src/**/[bB]in/*
+src/**/[oO]bj/*
+./**/secret*
