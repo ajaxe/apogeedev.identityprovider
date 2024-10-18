@@ -1,8 +1,10 @@
+using System.Security.Cryptography.X509Certificates;
 using Amazon.Runtime;
 using ApogeeDev.IdentityProvider.Host.Data;
 using ApogeeDev.IdentityProvider.Host.Initializers;
 using ApogeeDev.IdentityProvider.Host.Models.Configuration;
 using ApogeeDev.IdentityProvider.Host.Operations.Processors;
+using ApogeeDev.IdentityProvider.Host.Operations.RequestHandlers;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -18,6 +20,8 @@ namespace ApogeeDev.IdentityProvider.Host;
 public class Startup
 {
     public const string EnvVarPrefix = "APP_";
+    private string AppPathPrefix => System.Environment.GetEnvironmentVariable($"{EnvVarPrefix}AppPathPrefix")
+        ?? string.Empty;
 
     public Startup(ConfigurationManager configuration, IWebHostEnvironment environment)
     {
@@ -50,6 +54,15 @@ public class Startup
         services.Configure<OAuthWebProviderOptions>(
                 Configuration.GetSection(OAuthWebProviderOptions.SectionName));
 
+        services.Configure<ForwardedHeadersOptions>(options =>
+        {
+            options.ForwardedHeaders =
+                ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            options.RequireHeaderSymmetry = false;
+            options.KnownNetworks.Clear();
+            options.KnownProxies.Clear();
+        });
+
         // Add services to the container.
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         services.AddEndpointsApiExplorer();
@@ -65,7 +78,6 @@ public class Startup
         }
 #endif
 
-
         services.Configure<ForwardedHeadersOptions>(options =>
         {
             options.ForwardedHeaders =
@@ -75,14 +87,15 @@ public class Startup
             options.KnownProxies.Clear();
         });
 
-        services.AddHealthChecks();
+        services.AddHealthChecks()
+            .AddCheck<DbConnectionHealthCheck>("dbcheck");
 
-        services.AddQuartz(options =>
+        /*services.AddQuartz(options =>
         {
             options.UseSimpleTypeLoader();
             options.UseInMemoryStore();
         });
-        services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
+        services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);*/
 
         services.AddSingleton<IMongoClient>(new MongoClient(appOptions.MongoDbConnection));
         services.AddSingleton(sp =>
@@ -102,6 +115,7 @@ public class Startup
     {
         services.AddMediatR(cfg =>
         {
+            cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
             cfg.RegisterServicesFromAssembly(typeof(Startup).Assembly);
         });
 
@@ -122,6 +136,7 @@ public class Startup
         {
             // uses registered IMongoDatabase from DI
             _.UseMongoDb();
+            //_.UseQuartz();
         })
         .AddClient(o => ConfigureOpenIdDictClient(o))
         .AddServer(o => ConfigureOpenIdDictServer(o))
@@ -145,18 +160,20 @@ public class Startup
             OpenIddictConstants.Scopes.Phone,
             OpenIddictConstants.Scopes.Roles);
 
-        o.SetAuthorizationEndpointUris("/connect/authorize")
-            .SetTokenEndpointUris("/connect/token")
-            .SetLogoutEndpointUris("connect/logout")
-            .SetUserinfoEndpointUris("/connect/userinfo")
+        o.SetAuthorizationEndpointUris($"{AppPathPrefix}/connect/authorize")
+            .SetTokenEndpointUris($"{AppPathPrefix}/connect/token")
+            .SetLogoutEndpointUris($"{AppPathPrefix}/connect/logout")
+            .SetUserinfoEndpointUris($"{AppPathPrefix}/connect/userinfo")
             .AllowAuthorizationCodeFlow()
             .RequireProofKeyForCodeExchange()
-            .AddDevelopmentEncryptionCertificate()
-            .AddDevelopmentSigningCertificate()
+            .AddEncryptionCertificate(new X509Certificate2(File.ReadAllBytes(Configuration["AppOptions:EncryptionCert"]!)))
+            .AddSigningCertificate(new X509Certificate2(File.ReadAllBytes(Configuration["AppOptions:SigningCert"]!)))
             .UseAspNetCore()
             .EnableAuthorizationEndpointPassthrough()
             .EnableLogoutEndpointPassthrough()
-            .EnableUserinfoEndpointPassthrough();
+            //.EnableTokenEndpointPassthrough()
+            .EnableUserinfoEndpointPassthrough()
+            .DisableTransportSecurityRequirement();
     }
 
     private void ConfigureOpenIdDictClient(OpenIddictClientBuilder options)
@@ -195,15 +212,14 @@ public class Startup
 
     public void Configure(IApplicationBuilder app)
     {
-        string appPrefix = System.Environment.GetEnvironmentVariable($"{EnvVarPrefix}AppPathPrefix") ?? string.Empty;
-
         app.UseForwardedHeaders();
+        app.UseSerilogRequestLogging();
 
-        if (!string.IsNullOrWhiteSpace(appPrefix))
+        if (!string.IsNullOrWhiteSpace(AppPathPrefix))
         {
             app.Use((context, next) =>
             {
-                context.Request.PathBase = appPrefix;
+                context.Request.PathBase = AppPathPrefix;
                 return next();
             });
         }

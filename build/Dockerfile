@@ -2,7 +2,9 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS builder
 
 ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
 
-RUN mkdir -p /home/app/
+RUN mkdir -p /home/app/published
+
+COPY ["./src/ApogeeDev.IdentityProvider.Host/server-encryption-certificate.pfx", "./src/ApogeeDev.IdentityProvider.Host/server-signing-certificate.pfx", "/home/app/published/" ]
 
 WORKDIR /home/app/
 

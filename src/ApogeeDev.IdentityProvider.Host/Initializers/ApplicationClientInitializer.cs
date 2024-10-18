@@ -40,7 +40,7 @@ public class ApplicationClientInitializer : BackgroundService
             await TryAddOrUpdateAppClient(current);
         });
 
-        while (!stoppingToken.IsCancellationRequested) await Task.Delay(5000);
+        while (!stoppingToken.IsCancellationRequested) await Task.Delay(30000);
     }
 
     private async Task TryAddOrUpdateAppClient(AppClientOptions currentValue)
@@ -59,10 +59,16 @@ public class ApplicationClientInitializer : BackgroundService
         await using var scope = serviceProvider.CreateAsyncScope();
         var manager = scope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>();
 
-        await foreach (var entry in manager.ListAsync())
+        var clientIds = currentValue.Clients.Select(c => c.ClientId).ToHashSet();
+        logger.LogInformation("Removing {@ClientIds}", clientIds);
+
+        await foreach (var entry in manager.ListAsync()
+                                            .WhereAwait(async c => !clientIds.Add(await manager.GetClientIdAsync(c)
+                                                ?? throw new InvalidOperationException("Invalid client id"))))
         {
             await manager.DeleteAsync(entry);
         }
+
         foreach (var client in currentValue.Clients)
         {
             await manager.CreateAsync(GetAppDescriptor(client));

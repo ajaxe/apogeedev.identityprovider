@@ -5,3 +5,4 @@ secrets*
 .terraform.lock.hcl
 .publish
 terraform/modules/keytag/files/
+*.pfx
