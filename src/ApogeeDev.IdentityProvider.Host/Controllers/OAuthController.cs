@@ -34,7 +34,7 @@ public class OAuthController : Controller
 
         if (principal is null)
         {
-            var vm = await mediator.Send(new LoginViewRequest
+            LoginViewModel vm = await mediator.Send(new LoginViewRequest
             {
                 AuthorizeRedirectUrl = HttpContext.Request.GetEncodedUrl(),
                 ClientId = clientId,

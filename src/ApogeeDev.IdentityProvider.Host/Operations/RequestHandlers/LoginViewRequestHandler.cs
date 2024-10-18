@@ -1,4 +1,6 @@
 
+using OpenIddict.Abstractions;
+
 namespace ApogeeDev.IdentityProvider.Host.Operations.RequestHandlers;
 
 public class LoginViewRequest : IRequest<LoginViewModel>
@@ -10,19 +12,24 @@ public class LoginViewRequest : IRequest<LoginViewModel>
 public class LoginViewRequestHandler : IRequestHandler<LoginViewRequest, LoginViewModel>
 {
     private readonly ICryptoHelper cryptoHelper;
+    private readonly IOpenIddictApplicationManager appManager;
 
-    public LoginViewRequestHandler(ICryptoHelper cryptoHelper)
+    public LoginViewRequestHandler(ICryptoHelper cryptoHelper,
+        IOpenIddictApplicationManager appManager)
     {
         this.cryptoHelper = cryptoHelper;
+        this.appManager = appManager;
     }
 
-    public Task<LoginViewModel> Handle(LoginViewRequest request, CancellationToken cancellationToken)
+    public async Task<LoginViewModel> Handle(LoginViewRequest request, CancellationToken cancellationToken)
     {
+        var app = await appManager.FindByClientIdAsync(request.ClientId, cancellationToken);
         // get application name & other details for the login view
-        return Task.FromResult(new LoginViewModel
+        return new LoginViewModel
         {
-            AppDisplayName = "My App",
+            AppDisplayName = await appManager.GetDisplayNameAsync(app)
+                ?? throw new InvalidOperationException($"Invalid Display Name. clientId: {request.ClientId}'"),
             RedirectUrl = cryptoHelper.EncryptAsBase64Url(request.AuthorizeRedirectUrl),
-        });
+        };
     }
 }

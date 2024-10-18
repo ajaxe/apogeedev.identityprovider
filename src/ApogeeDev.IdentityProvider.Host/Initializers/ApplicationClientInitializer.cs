@@ -80,6 +80,7 @@ public class ApplicationClientInitializer : BackgroundService
         var descriptor = new OpenIddictApplicationDescriptor
         {
             ApplicationType = appClient.ApplicationType,
+            DisplayName = appClient.DisplayName,
             ClientId = appClient.ClientId,
             ClientSecret = appClient.ClientSecret,
             ClientType = appClient.ClientType,

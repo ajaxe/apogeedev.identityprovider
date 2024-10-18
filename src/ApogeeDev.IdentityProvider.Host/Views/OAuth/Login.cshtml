@@ -24,8 +24,10 @@
     </div>
     <main class="form-signin w-100 m-auto text-center">
 
-        <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
-        <div class="vstack gap-1 mb-5">
+        <p class="lead mb-2 fs-4">Please sign in to</p>
+        <h1 class="h3 fw-normal">@Model.AppDisplayName</h1>
+        <hr />
+        <div class="vstack gap-1 my-5">
             <div class="p-2">
                 <form asp-route="AuthorizeWithGoogle" method="post">
                     <partial name="_GoogleButton" />

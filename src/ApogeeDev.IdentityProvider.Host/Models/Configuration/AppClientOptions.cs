@@ -18,6 +18,8 @@ public class AppClient
     public string ClientType { get; set; } = default!; // "confidential" or "public"
     public string[] RedirectUris { get; set; } = [];
     public string[] PostLogoutRedirectUris { get; set; } = [];
+    public string DisplayName { get; set; } = default!;
+
     public IEnumerable<Uri> GetRedirectUris() => RedirectUris.Select(uri => new Uri(uri));
     public IEnumerable<Uri> GetPostLogoutRedirectUris() => PostLogoutRedirectUris.Select(uri => new Uri(uri));
 
