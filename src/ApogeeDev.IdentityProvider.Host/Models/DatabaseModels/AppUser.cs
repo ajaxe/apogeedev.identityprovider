@@ -23,29 +23,12 @@ public class AppUser
     [BsonElement("identity_provider")]
     public string? IdentityProvider { get; set; }
 
-    public static AppUser Create(string subject, string idProvider, ClaimsPrincipal principal)
+    public static AppUser Create(string subject, string idProvider)
     {
         return new AppUser
         {
             Subject = subject,
-            Email = principal.FindFirstValue(ClaimTypes.Email) ?? string.Empty,
             IdentityProvider = idProvider,
-            Name = principal.FindFirstValue(ClaimTypes.Name) ?? string.Empty,
-            ProfilePicture = principal.FindFirstValue(
-                    CustomClaimTypes.GitHub.AvatarUrl
-                ) ?? string.Empty,
-            UserName = principal.FindFirstValue(
-                    CustomClaimTypes.GitHub.Login
-                ) ?? string.Empty,
         };
-    }
-    public void ApplyClaims(ClaimsPrincipal principal)
-    {
-        Email = principal.FindFirstValue(ClaimTypes.Email) ?? string.Empty;
-        Name = principal.FindFirstValue(ClaimTypes.Name) ?? string.Empty;
-        ProfilePicture = principal.FindFirstValue(CustomClaimTypes.GitHub.AvatarUrl)
-            ?? string.Empty;
-        UserName = principal.FindFirstValue(CustomClaimTypes.GitHub.Login)
-            ?? string.Empty;
     }
 }

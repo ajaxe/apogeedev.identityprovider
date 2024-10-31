@@ -66,11 +66,17 @@ public class ApplicationClientInitializer : BackgroundService
                                             .WhereAwait(async c => !clientIds.Add(await manager.GetClientIdAsync(c)
                                                 ?? throw new InvalidOperationException("Invalid client id"))))
         {
+            var id = await manager.GetClientIdAsync(entry);
+            var displayName = await manager.GetDisplayNameAsync(entry);
+            logger.LogInformation("Deleting {@ClientId} {@ClientName}", id, displayName);
+
             await manager.DeleteAsync(entry);
         }
 
         foreach (var client in currentValue.Clients)
         {
+            logger.LogInformation("Creating {@ClientId} {@ClientName}",
+                client.ClientId, client.DisplayName);
             await manager.CreateAsync(GetAppDescriptor(client));
         }
     }

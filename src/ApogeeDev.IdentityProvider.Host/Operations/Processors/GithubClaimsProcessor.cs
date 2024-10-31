@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using ApogeeDev.IdentityProvider.Host.Data;
 using ApogeeDev.IdentityProvider.Host.Models.Configuration;
+using ApogeeDev.IdentityProvider.Host.Models.DatabaseModels;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 using static OpenIddict.Client.WebIntegration.OpenIddictClientWebIntegrationConstants;
 
@@ -24,5 +25,9 @@ public class GithubClaimsProcessor : ClaimsProcessorBase
     protected override string GetExternalIdpName()
     {
         return Providers.GitHub;
+    }
+    protected override void ApplyClaims(AppUser user, ClaimsPrincipal principal)
+    {
+        ClaimsMapper.MapGithubClaims(user, principal);
     }
 }

@@ -53,13 +53,11 @@ public abstract class ClaimsProcessorBase : IClaimsProcessor
 
         if (user == null)
         {
-            user = AppUser.Create(subject, idpName, principal);
+            user = AppUser.Create(subject, idpName);
             dbContext.AppUsers.Add(user);
         }
-        else
-        {
-            user.ApplyClaims(principal);
-        }
+
+        ApplyClaims(user, principal);
 
         await dbContext.SaveChangesAsync();
 
@@ -80,6 +78,9 @@ public abstract class ClaimsProcessorBase : IClaimsProcessor
 
         await dbContext.SaveChangesAsync();
     }
+
+    protected virtual void ApplyClaims(AppUser user, ClaimsPrincipal principal)
+        => throw new NotImplementedException();
 
     protected virtual string GetExternalIdpName() => throw new NotImplementedException();
 }
