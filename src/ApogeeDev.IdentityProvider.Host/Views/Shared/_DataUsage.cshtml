@@ -1,0 +1,27 @@
+@model DataUsageViewModel
+
+<p class="lead">
+    <span class="fst-italic fw-semibold">Data Usage:</span> As part of authentication, the service only
+    requests access to profile
+    which includes <em>first & last name, profile picture and email adress</em>. This is to build a
+    persona of the logged-in user in the requesting @if (!(Model?.ShowAffiliatedApps ?? true))
+    {
+        <a data-bs-toggle="modal" href="#appListModal">applications</a>
+    }
+    else
+    {
+        @: applications
+    }.
+</p>
+
+@if (Model?.ShowAffiliatedApps ?? false)
+{
+    <p>
+    <h1 class="modal-title fs-6" id="appListModalLabel">Affiliated Applications</h1>
+    <partial name="_AffiliatedAppList" />
+    </p>
+}
+else
+{
+    <partial name="_AffiliatedAppListModal" />
+}

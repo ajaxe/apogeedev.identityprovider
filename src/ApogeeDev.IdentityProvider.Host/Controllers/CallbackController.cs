@@ -48,8 +48,6 @@ public class CallbackController : ControllerBase
     {
         var result = await HttpContext.AuthenticateAsync(Providers.Google);
 
-        LogClaims(Providers.Google, result);
-
         if (result.Principal is not ClaimsPrincipal { Identity.IsAuthenticated: true })
         {
             throw new InvalidOperationException("The external authorization data cannot be used for authentication.");
@@ -63,11 +61,5 @@ public class CallbackController : ControllerBase
         // For scenarios where the default sign-in handler configured in the ASP.NET Core
         // authentication options shouldn't be used, a specific scheme can be specified here.
         return SignIn(loginResponse.Principal, loginResponse!.Properties);
-    }
-
-    private void LogClaims(string providerType, AuthenticateResult result)
-    {
-        logger.LogInformation("{@Provider} {@Claims}", providerType,
-             result.Principal!.Claims.Select(c => new { c.Type, c.Value }));
     }
 }
