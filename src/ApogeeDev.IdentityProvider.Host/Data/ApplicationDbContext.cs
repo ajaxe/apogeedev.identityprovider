@@ -21,4 +21,8 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<AppUser>();
         modelBuilder.Entity<AppUserClaim>();
     }
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        this.Database.AutoTransactionBehavior = AutoTransactionBehavior.Never; // Disable auto transaction
+    }
 }

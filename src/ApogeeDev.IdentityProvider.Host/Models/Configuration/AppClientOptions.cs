@@ -28,7 +28,7 @@ public class AppClient
         // make this configurable per client
         yield return Permissions.Endpoints.Authorization;
         yield return Permissions.Endpoints.Token;
-        yield return Permissions.Endpoints.Logout;
+        yield return Permissions.Endpoints.EndSession;
         yield return Permissions.GrantTypes.AuthorizationCode;
         yield return Permissions.ResponseTypes.Code;
         yield return Permissions.Scopes.Address;

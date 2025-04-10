@@ -1,5 +1,4 @@
 using System.Security.Cryptography.X509Certificates;
-using Amazon.Runtime;
 using ApogeeDev.IdentityProvider.Host.Data;
 using ApogeeDev.IdentityProvider.Host.Initializers;
 using ApogeeDev.IdentityProvider.Host.Models.Configuration;
@@ -12,7 +11,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using OpenIddict.Abstractions;
-using Quartz;
 using Serilog;
 
 namespace ApogeeDev.IdentityProvider.Host;
@@ -162,17 +160,17 @@ public class Startup
 
         o.SetAuthorizationEndpointUris($"{AppPathPrefix}/connect/authorize")
             .SetTokenEndpointUris($"{AppPathPrefix}/connect/token")
-            .SetLogoutEndpointUris($"{AppPathPrefix}/connect/logout")
-            .SetUserinfoEndpointUris($"{AppPathPrefix}/connect/userinfo")
+            .SetEndSessionEndpointUris($"{AppPathPrefix}/connect/logout")
+            .SetUserInfoEndpointUris($"{AppPathPrefix}/connect/userinfo")
             .AllowAuthorizationCodeFlow()
             .RequireProofKeyForCodeExchange()
             .AddEncryptionCertificate(new X509Certificate2(File.ReadAllBytes(Configuration["AppOptions:EncryptionCert"]!)))
             .AddSigningCertificate(new X509Certificate2(File.ReadAllBytes(Configuration["AppOptions:SigningCert"]!)))
             .UseAspNetCore()
             .EnableAuthorizationEndpointPassthrough()
-            .EnableLogoutEndpointPassthrough()
+            .EnableEndSessionEndpointPassthrough()
             //.EnableTokenEndpointPassthrough()
-            .EnableUserinfoEndpointPassthrough()
+            .EnableUserInfoEndpointPassthrough()
             .DisableTransportSecurityRequirement();
     }
 
