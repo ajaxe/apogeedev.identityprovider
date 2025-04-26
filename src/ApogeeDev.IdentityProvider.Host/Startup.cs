@@ -11,6 +11,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using OpenIddict.Abstractions;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using Quartz;
 using Serilog;
 
 namespace ApogeeDev.IdentityProvider.Host;
@@ -36,6 +40,7 @@ public class Startup
         {
             services.AddDataProtection()
                 .PersistKeysToFileSystem(new DirectoryInfo("/dpapi-keys/"));
+            AddOpenTelemetry(services);
         }
 
         var appOptions = new AppOptions();
@@ -88,12 +93,12 @@ public class Startup
         services.AddHealthChecks()
             .AddCheck<DbConnectionHealthCheck>("dbcheck");
 
-        /*services.AddQuartz(options =>
+        services.AddQuartz(options =>
         {
             options.UseSimpleTypeLoader();
             options.UseInMemoryStore();
         });
-        services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);*/
+        services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
 
         services.AddSingleton<IMongoClient>(new MongoClient(appOptions.MongoDbConnection));
         services.AddSingleton(sp =>
@@ -107,6 +112,63 @@ public class Startup
             .AddCookie();
 
         ConfigureAppServices(services);
+    }
+
+    private void AddOpenTelemetry(IServiceCollection services)
+    {
+        var appName = "ApogeeDev.IdentityProvider";
+        var otelEndpoint = Configuration["OTLP_ENDPOINT_URL"]?.ToString() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(otelEndpoint))
+        {
+            Log.Warning("OTLP_ENDPOINT_URL is not set, OpenTelemetry will not be configured.");
+            return;
+        }
+
+        var otel = services.AddOpenTelemetry()
+        .ConfigureResource(resource =>
+        {
+            resource.AddService(serviceName: appName);
+            var globalOpenTelemetryAttributes = new List<KeyValuePair<string, object>>
+            {
+                new KeyValuePair<string, object>("env", Environment.EnvironmentName),
+                new KeyValuePair<string, object>("service.name", appName),
+                new KeyValuePair<string, object>("service.version", "1.0.0"),
+                new KeyValuePair<string, object>("service.instanceId", System.Environment.MachineName),
+            };
+            resource.AddAttributes(globalOpenTelemetryAttributes);
+        })
+        .WithMetrics(metrics => metrics
+            .AddOtlpExporter(otlpOptions =>
+            {
+                otlpOptions.Endpoint = new Uri(otelEndpoint);
+            })
+            // Metrics provider from OpenTelemetry
+            .AddAspNetCoreInstrumentation()
+            .AddMeter("ApogeeDev.IdentityProvider")
+            // Metrics provides by ASP.NET Core in .NET 8
+            .AddMeter("Microsoft.AspNetCore.Hosting")
+            .AddMeter("Microsoft.AspNetCore.Server.Kestrel")
+            .AddPrometheusExporter())
+        .WithTracing(tracing =>
+        {
+            tracing.AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation()
+                .AddSource(appName)
+                .AddOtlpExporter(otlpOptions =>
+                {
+                    otlpOptions.Endpoint = new Uri(otelEndpoint);
+                })
+                .AddEntityFrameworkCoreInstrumentation(options =>
+                {
+                    options.EnrichWithIDbCommand = (activity, command) =>
+                    {
+                        var stateDisplayName = $"{command.CommandType} main";
+                        activity.DisplayName = stateDisplayName;
+                        activity.SetTag("db.name", stateDisplayName);
+                    };
+                })
+                .AddConsoleExporter();
+        });
     }
 
     private void ConfigureAppServices(IServiceCollection services)
@@ -134,7 +196,9 @@ public class Startup
         {
             // uses registered IMongoDatabase from DI
             _.UseMongoDb();
-            //_.UseQuartz();
+            _.UseQuartz()
+               .SetMinimumAuthorizationLifespan(TimeSpan.FromDays(7))
+               .SetMinimumTokenLifespan(TimeSpan.FromHours(12));
         })
         .AddClient(o => ConfigureOpenIdDictClient(o))
         .AddServer(o => ConfigureOpenIdDictServer(o))
@@ -243,5 +307,9 @@ public class Startup
             endpoints.MapDefaultControllerRoute();
             endpoints.MapHealthChecks("/healthcheck");
         });
+        if (!Environment.IsDevelopment())
+        {
+            app.UseOpenTelemetryPrometheusScrapingEndpoint();
+        }
     }
 }
