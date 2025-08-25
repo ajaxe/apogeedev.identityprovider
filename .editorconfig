@@ -1,0 +1,49 @@
+# This is the top-most .editorconfig file.
+root = true
+
+# General rules for all files
+[*]
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+indent_style = space
+
+# C# files (.cs)
+[*.cs]
+indent_size = 4
+tab_width = 4
+
+# C# Coding Style Rules (based on common .NET conventions)
+# Use 'var' when the type is apparent.
+dotnet_style_var_for_built_in_types = true
+dotnet_style_var_when_type_is_apparent = true
+dotnet_style_var_elsewhere = false
+
+# Add braces for single-line statements.
+csharp_prefer_braces = true
+
+# Order modifiers correctly.
+csharp_preferred_modifier_order = public,private,protected,internal,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,volatile,async
+
+# Prefer expression-bodied members for simple one-line methods.
+csharp_style_expression_bodied_methods = when_on_single_line
+csharp_style_expression_bodied_properties = true
+csharp_style_expression_bodied_accessors = true
+
+# Add 'this.' qualification for instance members.
+dotnet_style_qualification_for_field = true
+dotnet_style_qualification_for_property = true
+dotnet_style_qualification_for_method = true
+
+# ---
+
+# JavaScript files (.js)
+[*.js]
+indent_size = 2
+tab_width = 2
+
+# JavaScript Coding Style Rules (based on common conventions like Prettier/ESLint)
+quote_type = single
+javascript_space_after_keywords_in_control_flow_statements = true
+javascript_space_before_function_parentheses = false
