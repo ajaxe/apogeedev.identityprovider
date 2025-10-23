@@ -1,5 +1,6 @@
 using System.Security.Cryptography.X509Certificates;
 using ApogeeDev.IdentityProvider.Host.Data;
+using ApogeeDev.IdentityProvider.Host.Helpers;
 using ApogeeDev.IdentityProvider.Host.Initializers;
 using ApogeeDev.IdentityProvider.Host.Models.Configuration;
 using ApogeeDev.IdentityProvider.Host.Operations.Processors;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using MongoDB.Driver.Core.Extensions.DiagnosticSources;
 using OpenIddict.Abstractions;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -100,7 +102,12 @@ public class Startup
         });
         services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
 
-        services.AddSingleton<IMongoClient>(new MongoClient(appOptions.MongoDbConnection));
+        services.AddSingleton<IMongoClient>(sp =>
+        {
+            var clientSettings = MongoClientSettings.FromConnectionString(appOptions.MongoDbConnection);
+            clientSettings.ClusterConfigurator = cb => cb.Subscribe(new DiagnosticsActivityEventSubscriber());
+            return new MongoClient(clientSettings);
+        });
         services.AddSingleton(sp =>
             sp.GetRequiredService<IMongoClient>().GetDatabase(appOptions.DatabaseName)
         );
@@ -154,6 +161,9 @@ public class Startup
             tracing.AddAspNetCoreInstrumentation()
                 .AddHttpClientInstrumentation()
                 .AddSource(appName)
+                .AddSource(ActivitySources.RequestHandlers.Name)
+                .AddSource(ActivitySources.ClaimProcessors.Name)
+                .AddSource("MongoDB.Driver.Core.Extensions.DiagnosticSources")
                 .AddOtlpExporter(otlpOptions =>
                 {
                     otlpOptions.Endpoint = new Uri(otelEndpoint);
@@ -166,8 +176,10 @@ public class Startup
                         activity.DisplayName = stateDisplayName;
                         activity.SetTag("db.name", stateDisplayName);
                     };
-                })
-                .AddConsoleExporter();
+                });
+
+            if (Environment.IsDevelopment())
+                tracing.AddConsoleExporter();
         });
     }
 
@@ -235,7 +247,7 @@ public class Startup
             .EnableEndSessionEndpointPassthrough()
             //.EnableTokenEndpointPassthrough()
             .EnableUserInfoEndpointPassthrough()
-            .DisableTransportSecurityRequirement();
+            .DisableTransportSecurityRequirement(); ;
     }
 
     private void ConfigureOpenIdDictClient(OpenIddictClientBuilder options)

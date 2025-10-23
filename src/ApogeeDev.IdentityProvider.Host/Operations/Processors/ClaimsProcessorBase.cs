@@ -21,6 +21,10 @@ public abstract class ClaimsProcessorBase : IClaimsProcessor
 
     public virtual async Task<ClaimsProcessorResult> Process(ClaimsPrincipal principal)
     {
+        using var activity = ActivitySources.ClaimProcessors.StartActivity(nameof(Process));
+
+        activity?.SetTag("idp", GetExternalIdpName());
+
         var idClaims = GetIdentityClaims(principal);
         await PersistClaims(principal, idClaims);
 
@@ -32,6 +36,8 @@ public abstract class ClaimsProcessorBase : IClaimsProcessor
 
     protected virtual IEnumerable<Claim> GetIdentityClaims(ClaimsPrincipal principal)
     {
+        using var activity = ActivitySources.ClaimProcessors.StartActivity(nameof(GetIdentityClaims));
+
         foreach (var claimType in IdClaimMap.Keys)
         {
             var existing = principal.FindFirst(c => c.Type == claimType);
@@ -44,6 +50,8 @@ public abstract class ClaimsProcessorBase : IClaimsProcessor
     }
     protected virtual async Task PersistClaims(ClaimsPrincipal principal, IEnumerable<Claim> idClaims)
     {
+        using var activity = ActivitySources.ClaimProcessors.StartActivity(nameof(PersistClaims));
+
         var subject = principal.FindFirstValue(ClaimTypes.NameIdentifier)
             ?? throw new InvalidOperationException($"'NameIdentifier' claim missing");
 

@@ -14,9 +14,11 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
+        var requesTypeName = typeof(TRequest).Name;
+        using var activity = ActivitySources.RequestHandlers.StartActivity(requesTypeName);
         var stopwatch = new Stopwatch();
         stopwatch.Start();
-        _logger.LogInformation("Handling {@Request}", typeof(TRequest).Name);
+        _logger.LogInformation("Handling {@Request}", requesTypeName);
         var response = await next();
         stopwatch.Stop();
         _logger.LogInformation("Handled {@Response} {@EllapsedMsec}",
