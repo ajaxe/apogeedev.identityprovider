@@ -1,7 +1,4 @@
-using System.Security.Claims;
 using ApogeeDev.IdentityProvider.Host.Operations.Processors;
-using Microsoft.AspNetCore.Authentication;
-using static OpenIddict.Client.WebIntegration.OpenIddictClientWebIntegrationConstants;
 
 namespace ApogeeDev.IdentityProvider.Host.Operations.RequestHandlers;
 
