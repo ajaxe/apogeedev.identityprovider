@@ -1,0 +1,49 @@
+@model ModifyClientViewModel
+
+<div class="d-flex justify-content-between mb-3">
+    <h1 class="text-3xl font-bold text-gray-800">OIDC Client Configuration</h1>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form asp-controller="Manage" asp-action="ClientRegister" method="post">
+            <div class="mb-3">
+                <label for="display-name" class="form-label">Display Name</label>
+                <input asp-for="DisplayName" class="form-control" id="display-name">
+            </div>
+            <div class="mb-3">
+                <label for="client-id" class="form-label">Client ID</label>
+                <input asp-cfor="ClientId" class="form-control" id="client-id">
+            </div>
+            <div class="mb-3">
+                <label for="client-secret" class="form-label">Client Secret</label>
+                <input class="form-control" id="client-secret">
+            </div>
+            <div class="row">
+                <div class="mb-3 col">
+                    <label for="app-type" class="form-label">Applciation Type</label>
+                    <select asp-for="ApplicationType" asp-items="Model.AppTypes" id="app-type"
+                        class="form-select"></select>
+                </div>
+                <div class="mb-3 col">
+                    <label for="client-type" class="form-label">Client Type</label>
+                    <select class="form-select" id="client-type" asp-for="ClientType"
+                        asp-items="Model.ClientTypes"></select>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="@Model.RedirectUrisViewModel.Id" class="form-label">Redirect URIs</label>
+                <partial name="_MultipleUri" model="Model.RedirectUrisViewModel" />
+            </div>
+            <div class="mb-3">
+                <label for="@Model.PostLogoutRedirectUrisViewModel.Id" class="form-label">Post-Logout Redirect
+                    URIs</label>
+                <partial name="_MultipleUri" model="Model.PostLogoutRedirectUrisViewModel" />
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</div>
+<template id="uri-display-template">
+    <partial name="_UriSelectedDisplay" model='""' />
+</template>

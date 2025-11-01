@@ -25,4 +25,15 @@ public class ManageController : Controller
     {
         return View();
     }
+    [Route("Client/Add")]
+    public IActionResult ClientAdd()
+    {
+        return View();
+    }
+    [HttpPost]
+    [Route("Client/Register")]
+    public IActionResult ClientRegister(ModifyClientViewModel model)
+    {
+        return RedirectToAction("Client");
+    }
 }

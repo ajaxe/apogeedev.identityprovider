@@ -1,0 +1,10 @@
+@model string?
+<div class="d-flex text-bg-secondary rounded-5 px-3 py-1 my-1 uri-display">
+    <div class="w-100 pe-2">
+        <span class="uri-value">@(Model ?? string.Empty)</span>
+    </div>
+    <div class="flex-shrink-1">
+        <button type="button" class="btn btn-secondary btn-sm">
+            <i class="bi bi-x"></i>
+    </div>
+</div>
