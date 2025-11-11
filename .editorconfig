@@ -39,11 +39,15 @@ dotnet_style_qualification_for_method = true
 # ---
 
 # JavaScript files (.js)
-[*.js]
+[*.{js,jsx,mjs,cjs,ts,tsx,mts,cts,vue,css,scss,sass,less,styl}]
 indent_size = 2
+indent_style = space
 tab_width = 2
 
-# JavaScript Coding Style Rules (based on common conventions like Prettier/ESLint)
+insert_final_newline = true
+trim_trailing_whitespace = true
+end_of_line = lf
+max_line_length = 100
 quote_type = single
 javascript_space_after_keywords_in_control_flow_statements = true
 javascript_space_before_function_parentheses = false
