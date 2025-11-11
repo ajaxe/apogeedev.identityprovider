@@ -1,5 +1,6 @@
 using ApogeeDev.IdentityProvider.Host.Operations.RequestHandlers;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace ApogeeDev.IdentityProvider.Host.Controllers;
 
@@ -17,13 +18,38 @@ public class ManageController : Controller
     [Route("Client")]
     public async Task<IActionResult> Client()
     {
-        ClientListViewModel vm = await mediator.Send(new AppClientListRequest());
+        var response = await mediator.Send(new AppClientListRequest());
+
+        var vm = new ClientListViewModel
+        {
+            Clients = response?.Select(c => new ClientListItem(c)).ToList()
+                ?? new List<ClientListItem>(),
+        };
+
+        if (TempData.Get<ViewMessageState>(GetTempDataKey()) is ViewMessageState state)
+        {
+            vm.ViewState = state;
+        }
+
         return View(vm);
     }
     [Route("Client/Edit/{id}")]
-    public IActionResult ClientEdit(string id)
+    public async Task<IActionResult> ClientEdit(string id)
     {
-        return View();
+        var response = await mediator.Send(new AppClientListRequest
+        {
+            ClientId = id,
+        });
+
+        if (response.Count == 0)
+        {
+            TempData.Put(GetTempDataKey(), ViewMessageState.Error("Client not found"));
+            return RedirectToAction("Client");
+        }
+
+        var vm = new ModifyClientViewModel(response.First());
+
+        return View(vm);
     }
     [Route("Client/Add")]
     public IActionResult ClientAdd()
@@ -36,4 +62,5 @@ public class ManageController : Controller
     {
         return RedirectToAction("Client");
     }
+    private string GetTempDataKey() => $"Client.{ViewMessageState.TempDataKey}";
 }

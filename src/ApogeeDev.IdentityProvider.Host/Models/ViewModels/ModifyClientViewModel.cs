@@ -1,9 +1,22 @@
+using ApogeeDev.IdentityProvider.Host.Operations.RequestHandlers;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ApogeeDev.IdentityProvider.Host.Models.ViewModels;
 
 public class ModifyClientViewModel
 {
+    public ModifyClientViewModel() { }
+    public ModifyClientViewModel(AppClientData appClientData)
+    {
+        IsEditMode = true;
+        ClientId = appClientData.ClientId;
+        DisplayName = appClientData.DisplayName;
+        ApplicationType = appClientData.ApplicationType;
+        ClientType = appClientData.ClientType;
+        RedirectUris = appClientData.RedirectUris;
+        PostLogoutRedirectUris = appClientData.PostLogoutRedirectUris;
+    }
+
     public bool IsEditMode { get; set; }
     public string ClientId { get; set; } = default!;
     public string DisplayName { get; set; } = default!;
@@ -37,4 +50,6 @@ public class ModifyClientViewModel
         new SelectListItem("Public", "public"),
         new SelectListItem("Confidential", "confidential"),
     };
+
+    // public static implicit operator (ClientListItem model)
 }

@@ -1,8 +1,18 @@
+using ApogeeDev.IdentityProvider.Host.Operations.RequestHandlers;
+
 namespace ApogeeDev.IdentityProvider.Host.Models.ViewModels;
 
 
 public class ClientListItem
 {
+    public ClientListItem() { }
+    public ClientListItem(AppClientData c)
+    {
+        ClientId = c.ClientId;
+        DisplayName = c.DisplayName;
+        ApplicationType = c.ApplicationType;
+        ClientType = c.ClientType;
+    }
     public string ClientId { get; set; } = default!;
     public string DisplayName { get; set; } = default!;
     public string ApplicationType { get; set; } = default!;
@@ -41,4 +51,6 @@ public class ClientListViewModel
         Clients = new List<ClientListItem>();
     }
     public List<ClientListItem> Clients { get; set; }
+
+    public ViewMessageState ViewState { get; set; } = default!;
 }

@@ -9,7 +9,17 @@
         + Create New Client
     </a>
 </div>
-<div class="">
+<div>
+    @if (Model.ViewState?.IsError == true)
+    {
+        <div class="d-flex justify-content-center">
+            <div class="alert alert-warning" role="alert">
+                <span>@Model.ViewState.Message</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+
     <table class="table table-hover">
         <thead class="bg-gray-50">
             <tr>
@@ -27,7 +37,7 @@
                     Client Type
                 </th>
                 <th scope="col" class="relative px-6 py-3">
-                    <span class="visually-hidden">Edit</span>
+                    <span class="visually-hidden">Actions</span>
                 </th>
             </tr>
         </thead>
@@ -52,9 +62,11 @@
                             @app.ClientType
                         </span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <td class="px-6 py-2 whitespace-nowrap text-right text-sm font-medium">
                         <a asp-controller="Manage" asp-action="ClientEdit" asp-route-id="@app.ClientId"
                             class="text-blue-600 hover:text-blue-900">Edit</a>
+                        <a href="javascript:void(0)" class="text-blue-600 hover:text-blue-900 ms-3">Delete</a><br />
+                        <a href="javascript:void(0)" class="text-blue-600 hover:text-blue-900">Regenerate Secret</a>
                     </td>
                 </tr>
             }

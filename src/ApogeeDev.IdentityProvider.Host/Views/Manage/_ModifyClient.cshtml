@@ -13,7 +13,7 @@
             </div>
             <div class="mb-3">
                 <label for="client-id" class="form-label">Client ID</label>
-                <input asp-cfor="ClientId" class="form-control" id="client-id">
+                <input asp-for="ClientId" class="form-control" id="client-id" readonly="@Model.IsEditMode">
             </div>
             <div class="mb-3">
                 <label for="client-secret" class="form-label">Client Secret</label>

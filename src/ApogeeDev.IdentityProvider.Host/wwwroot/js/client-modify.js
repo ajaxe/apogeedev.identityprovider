@@ -1,15 +1,29 @@
 (function () {
   $(function () {
     $('.multiple-uri-input').on('click', 'button', addUri);
-    console.log({ count: $('.multiple-uri-input').length });
+    $('.uri-display').on('click', 'button', (e) =>
+      getDeleteHandler($(e.delegateTarget))(e)
+    );
   });
 
   const addUri = function (e) {
     e.preventDefault();
     const current = $(e.delegateTarget);
-    const v = current.find('input').val();
-    console.log({ v });
-    if (!v) return;
+    const input = current.find('input');
+    const v = input.val();
+
+    if (!URL.canParse(v)) return;
+
+    const url = new URL(v);
+    if (
+      !checkValidity({
+        input: input[0],
+        message: 'Must be a valid URI',
+        check: () => url.protocol === 'https:',
+      })
+    ) {
+      return;
+    }
 
     const existing = current
       .siblings('.uri-display')
@@ -18,7 +32,15 @@
           $(el).find('.uri-value').text().toUpperCase() === v.toUpperCase()
       );
 
-    if (existing.length) return;
+    if (
+      !checkValidity({
+        input: input[0],
+        message: 'URI already added.',
+        check: () => existing.length === 0,
+      })
+    ) {
+      return;
+    }
 
     const tmp = $('#uri-display-template').contents().clone();
 
@@ -26,6 +48,7 @@
     tmp.find('button').on('click', getDeleteHandler(tmp));
 
     current.before(tmp);
+    input.val('');
   };
 
   const getDeleteHandler = function (el) {
@@ -33,5 +56,16 @@
       el.remove();
       e.preventDefault();
     };
+  };
+
+  const checkValidity = function ({ input, message, check }) {
+    const valid = check();
+    if (valid) {
+      input.setCustomValidity('');
+    } else {
+      input.setCustomValidity(message);
+      input.reportValidity();
+    }
+    return valid;
   };
 })();
