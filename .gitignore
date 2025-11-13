@@ -6,7 +6,6 @@ secrets*
 .publish
 terraform/modules/keytag/files/
 *.pfx
-node_modules
 
 # Logs
 logs
@@ -44,3 +43,4 @@ coverage
 
 # Vitest
 __screenshots__/
+.env*
