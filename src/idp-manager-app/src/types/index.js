@@ -4,5 +4,7 @@
  * @property {string} clientId
  * @property {string} applicationType
  * @property {string} clientType
+ * @property {Array<string>} redirectUris
+ * @property {Array<string>} postLogoutRedirectUris
  */
 export {}

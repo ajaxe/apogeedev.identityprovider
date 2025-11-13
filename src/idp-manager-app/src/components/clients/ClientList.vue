@@ -8,7 +8,6 @@ const store = useClientStore()
 const { list } = storeToRefs(store)
 
 onMounted(() => void store.fetchClients())
-
 </script>
 
 <template>

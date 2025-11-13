@@ -17,10 +17,7 @@
       </span>
     </td>
     <td class="px-6 py-2 whitespace-nowrap text-right text-sm font-medium">
-      <a
-        href="javascript:void(0)"
-        :route-id="item.clientId"
-        class="text-blue-600 hover:text-blue-900"
+      <a href="javascript:void(0)" @click="navigateEdit" class="text-blue-600 hover:text-blue-900"
         >Edit</a
       >
       <a href="javascript:void(0)" class="text-blue-600 hover:text-blue-900 ms-3">Delete</a><br />
@@ -29,11 +26,15 @@
   </tr>
 </template>
 <script setup>
+import { useRouter } from 'vue-router'
+
 const props = defineProps({
   item: Object,
 })
 const { /* type {import('@/types').ClientListItem} */ item } = props
 
+const router = useRouter()
+const navigateEdit = () => router.push({ name: 'edit-client', params: { clientId: item.clientId } })
 const getCss = (type) => {
   let css = ''
   switch (type.toUpperCase()) {
