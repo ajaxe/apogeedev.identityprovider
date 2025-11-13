@@ -41,6 +41,16 @@
         "/consoleloggerparameters:NoSummary"
       ],
       "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Start Vite Dev Server",
+      "type": "shell",
+      "command": "pnpm run dev",
+      "isBackground": true,
+      "options": {
+        "cwd": "${workspaceFolder}/src/idp-manager-app"
+      },
+      "problemMatcher": []
     }
   ]
 }

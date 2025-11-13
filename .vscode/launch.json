@@ -45,9 +45,21 @@
       "sourceFileMap": {
         "/Views": "${workspaceFolder}/src/TestClient/Velusia.Client/Views"
       }
+    },
+    {
+      "type": "chrome",
+      "request": "attach",
+      "name": "Frontend-Vue",
+      "url": "http://localhost:5173/*",
+      "webRoot": "${workspaceFolder}/src/idp-manager-app",
+      "preLaunchTask": "Start Vite Dev Server"
     }
   ],
   "compounds": [
+    {
+      "name": "idp+vue",
+      "configurations": ["idp", "Frontend-Vue"]
+    },
     {
       "name": "idp/client",
       "configurations": ["idp", "client"]
