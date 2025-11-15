@@ -1,6 +1,5 @@
 using System.Security.Cryptography.X509Certificates;
 using ApogeeDev.IdentityProvider.Host.Data;
-using ApogeeDev.IdentityProvider.Host.Helpers;
 using ApogeeDev.IdentityProvider.Host.Initializers;
 using ApogeeDev.IdentityProvider.Host.Models.Configuration;
 using ApogeeDev.IdentityProvider.Host.Operations.Processors;
@@ -24,6 +23,7 @@ namespace ApogeeDev.IdentityProvider.Host;
 public class Startup
 {
     public const string EnvVarPrefix = "APP_";
+    private const string DevAllowCors = "devAllowOrigins";
     private string AppPathPrefix => System.Environment.GetEnvironmentVariable($"{EnvVarPrefix}AppPathPrefix")
         ?? string.Empty;
 
@@ -43,6 +43,16 @@ public class Startup
             services.AddDataProtection()
                 .PersistKeysToFileSystem(new DirectoryInfo("/dpapi-keys/"));
             AddOpenTelemetry(services);
+        }
+        else
+        {
+            services.AddCors(opts =>
+            {
+                opts.AddPolicy(DevAllowCors,
+                    policy => policy.WithOrigins("https://localhost:5173")
+                               .AllowAnyMethod()
+                               .AllowAnyHeader());
+            });
         }
 
         var appOptions = new AppOptions();
@@ -308,6 +318,10 @@ public class Startup
         app.UseStaticFiles();
 
         app.UseRouting();
+
+        if (Environment.IsDevelopment())
+            app.UseCors(DevAllowCors);
+
         app.UseAuthentication();
         app.UseAuthorization();
 

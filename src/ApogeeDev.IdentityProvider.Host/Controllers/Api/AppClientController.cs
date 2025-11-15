@@ -1,7 +1,7 @@
 using ApogeeDev.IdentityProvider.Host.Operations.RequestHandlers;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ApogeeDev.IdentityProvider.Host.Controllers;
+namespace ApogeeDev.IdentityProvider.Host.Controllers.Api;
 
 [ApiController]
 [Route("api/app-client")]

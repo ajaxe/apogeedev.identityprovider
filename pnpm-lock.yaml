@@ -16,6 +16,9 @@ importers:
       bootstrap:
         specifier: ^5.3.8
         version: 5.3.8(@popperjs/core@2.11.8)
+      oidc-client-ts:
+        specifier: ^3.4.0
+        version: 3.4.0
       pinia:
         specifier: ^3.0.3
         version: 3.0.4(vue@3.5.24)
@@ -1288,6 +1291,10 @@ packages:
   jsonc-parser@3.3.1:
     resolution: {integrity: sha512-HUgH65KyejrUFPvHFPbqOY0rsFip3Bo5wb4ngvdi1EpCYWUQDC5V+Y7mZws+DLkr4M//zQJoanu1SP+87Dv1oQ==}
 
+  jwt-decode@4.0.0:
+    resolution: {integrity: sha512-+KJGIyHgkGuIq3IEBNftfhW/LfWhXUIY6OmyVWjliu5KH1y0fw7VQ8YndE2O4qZdMSd9SqbnC8GOcZEy0Om7sA==}
+    engines: {node: '>=18'}
+
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
@@ -1365,6 +1372,10 @@ packages:
 
   ohash@2.0.11:
     resolution: {integrity: sha512-RdR9FQrFwNBNXAr4GixM8YaRZRJ5PUWbKYbE5eOsrwAjJW0q2REGcf79oYPsLyskQCZG1PLN+S/K1V00joZAoQ==}
+
+  oidc-client-ts@3.4.0:
+    resolution: {integrity: sha512-Fe4EKXYxT1SkKfvEv4qOkVlPWYBjrV+4XXKLSvX9U4s5EHchawF1x2sguO+6u0tOa/Xw6lOvD/ClzCAxJUI25g==}
+    engines: {node: '>=18'}
 
   open@10.2.0:
     resolution: {integrity: sha512-YgBpdJHPyQ2UE5x+hlSXcnejzAvD0b22U2OuAP+8OnlJT+PjWPxtgmGqKKc+RgTM63U9gN0YzrYc71R2WT/hTA==}
@@ -2923,6 +2934,8 @@ snapshots:
 
   jsonc-parser@3.3.1: {}
 
+  jwt-decode@4.0.0: {}
+
   keyv@4.5.4:
     dependencies:
       json-buffer: 3.0.1
@@ -2995,6 +3008,10 @@ snapshots:
       boolbase: 1.0.0
 
   ohash@2.0.11: {}
+
+  oidc-client-ts@3.4.0:
+    dependencies:
+      jwt-decode: 4.0.0
 
   open@10.2.0:
     dependencies:
