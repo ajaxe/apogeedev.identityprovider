@@ -19,10 +19,6 @@
           :readonly="true"
         />
       </div>
-      <div class="mb-3">
-        <label for="client-secret" class="form-label">Client Secret</label>
-        <input class="form-control" id="client-secret" />
-      </div>
       <div class="row">
         <div class="mb-3 col">
           <label for="app-type" class="form-label">Application Type</label>
