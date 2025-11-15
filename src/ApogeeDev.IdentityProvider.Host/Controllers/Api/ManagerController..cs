@@ -14,8 +14,8 @@ public class ManagerController : ControllerBase
     [Route("check-authorization")]
     public IActionResult CheckAuthorization()
     {
-        if(User.HasClaim(c => c.Type == CustomClaimTypes.Common.AppManager))
+        if (User.HasClaim(c => c.Type == CustomClaimTypes.Common.AppManager))
             return Ok();
-        return Forbid();
+        return Forbid(OpenIddict.Validation.AspNetCore.OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
     }
 }

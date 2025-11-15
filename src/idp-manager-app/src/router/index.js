@@ -40,20 +40,25 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach(async (to, from) => {
+router.beforeEach(async (to) => {
   const store = useAuthStore()
 
   if (!store.user) await store.loadUser()
   if (!store.isAuthorized) await store.checkAuthorization()
 
-  const isLoggedIn = store.isLoggedIn
-  if (!isLoggedIn && (to.name == 'AuthCallback' || to.name == 'Login' || to.name == 'Unauthorized'))
-    return true
-  else if (to.name === 'Login' && isLoggedIn) {
+  const canProceed = store.isLoggedIn && store.isAuthorized
+  const publicRoutes = ['AuthCallback', 'Login', 'Unauthorized']
+  const isPublicRoute = publicRoutes.includes(to.name)
+
+  if (canProceed && to.name === 'Login') {
     return { name: 'clients' }
-  } else if (!isLoggedIn) {
-    return { name: 'Login' }
   }
+
+  if (!canProceed && !isPublicRoute) {
+    return store.isLoggedIn ? { name: 'Unauthorized' } : { name: 'Login' }
+  }
+
+  return true
 })
 
 export default router

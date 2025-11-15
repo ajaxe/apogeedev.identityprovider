@@ -45,11 +45,11 @@ export const useAuthStore = defineStore('auth', {
       router.push({ name: 'Unauthorized' })
     },
     async checkAuthorization() {
-      if(!this.token) {
+      if (!this.token) {
         return false
       }
       const r = await apiClient.get('/api/manager/check-authorization', true)
-      this.isAuthorized = r.status !== 403 || r.status !== 401
+      this.isAuthorized = r.status !== 403 && r.status !== 401
       return this.isAuthorized
     },
   },

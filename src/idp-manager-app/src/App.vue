@@ -1,13 +1,20 @@
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { RouterView } from 'vue-router'
 import AppBrand from '@/components/AppBrand.vue'
 import { useAuth } from '@/composables/useAuth'
 import UserAvatar from './components/UserAvatar.vue'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const { loadUser } = useAuth()
+const isRouterReady = ref(false)
+
 onMounted(() => {
-  loadUser()
+  void loadUser()
+  void router.isReady().then(() => {
+    isRouterReady.value = true
+  })
 })
 </script>
 
@@ -22,7 +29,7 @@ onMounted(() => {
       </div>
     </div>
   </header>
-  <div class="container mt-5">
+  <div class="container mt-5" v-if="isRouterReady">
     <RouterView />
   </div>
 </template>
