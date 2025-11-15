@@ -1,6 +1,7 @@
 <template>
   <div class="py-2">
-    <button v-if="user" class="btn btn-primary btn-large" @click="logout">Log Out</button>
+    <span :title="profile?.name" class="me-2 fw-bold lead">{{ profile?.username }}</span>
+    <button v-if="isLoggedIn" class="btn btn-primary btn-large" @click="logout">Log Out</button>
     <button v-else class="btn btn-primary btn-large" @click="login">Log In</button>
   </div>
 </template>
@@ -9,5 +10,5 @@
 import { useAuth } from '../composables/useAuth'
 
 // Get the reactive user object and methods
-const { user, login, logout } = useAuth()
+const { isLoggedIn, login, logout, profile } = useAuth()
 </script>

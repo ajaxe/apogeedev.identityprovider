@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { useAuth } from '@/composables/useAuth'
+import { apiClient } from '@/services/apiClient'
 
 export const useClientStore = defineStore('clients', {
   state: () => ({
@@ -24,39 +24,14 @@ export const useClientStore = defineStore('clients', {
       this.list.push(client)
     },
     async fetchClients() {
-      const token = getApiToken()
-      if (!token) {
-        return
-      }
-      const r = await fetch('/api/app-client', {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      this.list = await r.json()
+      const r = await apiClient.get('/api/app-client')
+      const d = await r.json()
+      this.list = d
     },
     async fetchClientById(clientId) {
-      const token = getApiToken()
-      if (!token) {
-        return
-      }
-      const r = await fetch(`/api/app-client/${clientId}`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      const r = await apiClient.get(`/api/app-client/${clientId}`)
       const d = await r.json()
       return d
     },
   },
 })
-
-const getApiToken = () => {
-  const { user } = useAuth()
-  if (!user.value) {
-    return
-  }
-  return user.value.access_token
-}

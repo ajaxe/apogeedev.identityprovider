@@ -3,6 +3,9 @@ import { UserManager } from 'oidc-client-ts'
 // Get the base URL of your app
 const appUrl = `${window.location.protocol}//${window.location.host}`
 
+/**
+ * @type {import('oidc-client-ts').UserManagerSettings}
+ */
 const settings = {
   authority: import.meta.env.VITE_OIDC_AUTHORITY,
   client_id: import.meta.env.VITE_OIDC_CLIENT_ID,
@@ -18,6 +21,7 @@ const settings = {
   scope: 'openid profile email',
 
   automaticSilentRenew: true,
+  loadUserInfo: true,
 }
 
 // Export the single instance

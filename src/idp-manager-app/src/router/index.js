@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import ClientListView from '@/views/ClientListView.vue'
-import { useAuth } from '@/composables/useAuth'
+import { useAuthStore } from '@/stores/auth'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,16 +32,26 @@ const router = createRouter({
       name: 'Login',
       component: () => import('@/views/LoginView.vue'),
     },
+    {
+      path: '/unauthorized',
+      name: 'Unauthorized',
+      component: () => import('@/views/UnauthorizedView.vue'),
+    },
   ],
 })
 
 router.beforeEach(async (to, from) => {
-  const { user, loadUser } = useAuth()
-  if (!user.value) await loadUser()
-  if (to.name == 'AuthCallback' || to.name == 'Login') return
-  else if (to.name === 'Login' && user) {
+  const store = useAuthStore()
+
+  if (!store.user) await store.loadUser()
+  if (!store.isAuthorized) await store.checkAuthorization()
+
+  const isLoggedIn = store.isLoggedIn
+  if (!isLoggedIn && (to.name == 'AuthCallback' || to.name == 'Login' || to.name == 'Unauthorized'))
+    return true
+  else if (to.name === 'Login' && isLoggedIn) {
     return { name: 'clients' }
-  } else if (!user.value) {
+  } else if (!isLoggedIn) {
     return { name: 'Login' }
   }
 })

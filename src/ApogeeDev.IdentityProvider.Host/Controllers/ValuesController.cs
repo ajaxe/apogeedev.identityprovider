@@ -1,3 +1,4 @@
+using ApogeeDev.IdentityProvider.Host.Models.Configuration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OpenIddict.Validation.AspNetCore;

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!user">
+  <div v-if="!isLoggedIn">
     <p>You are not logged in.</p>
     <button class="btn btn-primary btn-large" @click="login">Log In</button>
   </div>
@@ -9,5 +9,5 @@
 import { useAuth } from '../composables/useAuth'
 
 // Get the reactive user object and methods
-const { user, login } = useAuth()
+const { isLoggedIn, login } = useAuth()
 </script>
