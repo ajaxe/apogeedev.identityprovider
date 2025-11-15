@@ -4,6 +4,7 @@ using ApogeeDev.IdentityProvider.Host.Initializers;
 using ApogeeDev.IdentityProvider.Host.Models.Configuration;
 using ApogeeDev.IdentityProvider.Host.Operations.Processors;
 using ApogeeDev.IdentityProvider.Host.Operations.RequestHandlers;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -124,7 +125,12 @@ public class Startup
 
         ConfigureOpenIdDictServices(services);
 
-        services.AddAuthorization()
+        services.AddAuthorization(
+            options =>
+            {
+                options.AddPolicy("RequireAppManager",
+                    policy => policy.RequireClaim(CustomClaimTypes.Common.AppManager));
+            })
             .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie();
 
@@ -200,6 +206,8 @@ public class Startup
             cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
             cfg.RegisterServicesFromAssembly(typeof(Startup).Assembly);
         });
+
+        services.AddTransient<IClaimsTransformation, AppManagerClaimsTranformation>();
 
         services.AddTransient<ICryptoHelper, CryptoHelper>();
         services.AddTransient<GithubClaimsProcessor>();

@@ -2,8 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import ClientListView from '@/views/ClientListView.vue'
 import { useAuth } from '@/composables/useAuth'
 
-const { user } = useAuth()
-
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -37,7 +35,9 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to, from) => {
+router.beforeEach(async (to, from) => {
+  const { user, loadUser } = useAuth()
+  if (!user.value) await loadUser()
   if (to.name == 'AuthCallback' || to.name == 'Login') return
   else if (to.name === 'Login' && user) {
     return { name: 'clients' }

@@ -8,4 +8,5 @@ public class AppOptions
     public string MongoDbConnection { get; set; } = default!;
     public string DatabaseName { get; set; } = default!;
     public string EncryptionKeyPassword { get; set; } = default!;
+    public string[] AppManagerEmails { get; set; } = default!;
 }

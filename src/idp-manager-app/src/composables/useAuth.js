@@ -15,7 +15,6 @@ export function useAuth() {
     if (userFromStorage && !userFromStorage.expired) {
       user.value = userFromStorage
     }
-    console.log({ user: userFromStorage })
   }
 
   // --- Auth Methods ---
