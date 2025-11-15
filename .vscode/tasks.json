@@ -50,7 +50,17 @@
       "options": {
         "cwd": "${workspaceFolder}/src/idp-manager-app"
       },
-      "problemMatcher": []
+      "problemMatcher": {
+        "owner": "vite",
+        "pattern": {
+          "regexp": "VITE.*ready in.*"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "VITE v.*dev server running at:",
+          "endsPattern": "VITE.*ready in.*"
+        }
+      }
     }
   ]
 }

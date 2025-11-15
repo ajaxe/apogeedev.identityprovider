@@ -48,11 +48,32 @@
     },
     {
       "type": "chrome",
-      "request": "attach",
-      "name": "Frontend-Vue",
-      "url": "http://localhost:5173/*",
+      "request": "launch",
+      "name": "Frontend-Vue-Debugger",
+      "url": "https://localhost:5173",
       "webRoot": "${workspaceFolder}/src/idp-manager-app",
-      "preLaunchTask": "Start Vite Dev Server"
+      "preLaunchTask": "Start Vite Dev Server",
+      "serverReadyAction": {
+        "action": "debugWithChrome",
+        // This regex matches Vite's output: "> Local: https://localhost:5173/"
+        "pattern": "> Local: (https?://localhost:\\d+)",
+        "uriFormat": "%s",
+        "webRoot": "${workspaceFolder}/src/idp-manager-app"
+      }
+    },
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Frontend-Vue",
+      "url": "https://localhost:5173",
+      "webRoot": "${workspaceFolder}/src/idp-manager-app",
+      "preLaunchTask": "Start Vite Dev Server",
+      "serverReadyAction": {
+        "action": "openExternally",
+        // This regex matches Vite's output: "> Local: https://localhost:5173/"
+        "pattern": "> Local: (https?://localhost:\\d+)",
+        "uriFormat": "%s"
+      }
     }
   ],
   "compounds": [
