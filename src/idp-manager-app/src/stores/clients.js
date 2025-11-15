@@ -7,6 +7,17 @@ export const useClientStore = defineStore('clients', {
      */
     list: [],
   }),
+  getters: {
+    emptyClient: () => ({
+      displayName: '',
+      clientId: '',
+      clientSecret: '',
+      applicationType: '',
+      clientType: '',
+      redirectUris: [],
+      postLogoutRedirectUris: [],
+    }),
+  },
   actions: {
     add(client) {
       this.list.push(client)
@@ -14,6 +25,11 @@ export const useClientStore = defineStore('clients', {
     async fetchClients() {
       const r = await fetch('/api/app-client')
       this.list = await r.json()
+    },
+    async fetchClientById(clientId) {
+      const r = await fetch(`/api/app-client/${clientId}`)
+      const d = await r.json()
+      return d
     },
   },
 })

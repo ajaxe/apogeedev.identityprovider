@@ -23,6 +23,18 @@ public class AppClientController : ControllerBase
         return Ok(response);
     }
 
+    [HttpGet]
+    [Route("{id}")]
+    public async Task<IActionResult> ClientDetails(string id)
+    {
+        var response = await mediator.Send(new AppClientListRequest
+        {
+            ClientId = id,
+        });
+
+        return Ok(response.FirstOrDefault());
+    }
+
     [HttpPut]
     [Route("{id}")]
     public async Task<IActionResult> ClientEdit(string id, [FromBody] AppClientData model)

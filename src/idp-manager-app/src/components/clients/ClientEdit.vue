@@ -34,16 +34,15 @@
         </div>
       </div>
       <div class="mb-3">
-        <label for="@Model.RedirectUrisViewModel.Id" class="form-label">Redirect URIs</label>
-        <MultipleUriAdd v-model="model.redirectUris" />
+        <label for="redirect-uri" class="form-label">Redirect URIs</label>
+        <MultipleUriAdd v-model="model.redirectUris" id="redirect-uri" />
       </div>
       <div class="mb-3">
-        <label for="@Model.PostLogoutRedirectUrisViewModel.Id" class="form-label"
-          >Post-Logout Redirect URIs</label
-        >
-        <MultipleUriAdd v-model="model.postLogoutRedirectUris" />
+        <label for="post-logout-uri" class="form-label">Post-Logout Redirect URIs</label>
+        <MultipleUriAdd v-model="model.postLogoutRedirectUris" id="post-logout-uri" />
       </div>
-      <button type="submit" class="btn btn-primary">Submit</button>
+      <button type="submit" class="btn btn-primary" @click="$emit('submit')">Submit</button>
+      <button type="submit" class="btn btn-link ms-2" @click="$emit('cancel')">Cancel</button>
     </div>
   </div>
 </template>
@@ -56,4 +55,5 @@ import MultipleUriAdd from '../common/MultipleUriAdd.vue'
  * type {import('@/types').ClientListItem}
  */
 const model = defineModel()
+defineEmits(['submit', 'cancel'])
 </script>

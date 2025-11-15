@@ -1,11 +1,11 @@
 <template>
   <template v-for="u in model" :key="u">
-    <UriListItem :uri="u" />
+    <UriListItem :uri="u" @click="() => remove(u)" />
   </template>
 
   <div class="d-flex multiple-uri-input">
     <div class="w-100 pe-2">
-      <input class="form-control" v-model="uri" ref="input" />
+      <input class="form-control" v-model="uri" ref="input" :id="id" />
     </div>
     <div class="flex-shrink-1">
       <button class="btn btn-secondary btn-small" @click="add">Add</button>
@@ -15,6 +15,11 @@
 <script setup>
 import { ref, useTemplateRef } from 'vue'
 import UriListItem from './UriListItem.vue'
+
+const { id } = defineProps({
+  id: String,
+})
+
 const model = defineModel()
 const uri = ref('')
 
@@ -60,5 +65,9 @@ const checkValidity = function ({ input, message, check }) {
     input.reportValidity()
   }
   return valid
+}
+
+const remove = (uri) => {
+  model.value = model.value.filter((u) => u !== uri)
 }
 </script>
