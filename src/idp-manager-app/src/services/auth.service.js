@@ -1,14 +1,16 @@
 import { UserManager } from 'oidc-client-ts'
 
 // Get the base URL of your app
-const appUrl = `${window.location.protocol}//${window.location.host}`
+let base = window.APP_CONFIG?.API_URL_BASE
+if (base && base.endsWith('/')) base = base.substring(0, base.length - 1)
+const appUrl = `${window.location.protocol}//${window.location.host}${base}`
 
 /**
  * @type {import('oidc-client-ts').UserManagerSettings}
  */
 const settings = {
-  authority: import.meta.env.VITE_OIDC_AUTHORITY,
-  client_id: import.meta.env.VITE_OIDC_CLIENT_ID,
+  authority: window.APP_CONFIG.OIDC_AUTHORITY,
+  client_id: window.APP_CONFIG.OIDC_CLIENT_ID,
 
   // The route in your Vue app that will handle the callback
   redirect_uri: `${appUrl}/auth-callback`,

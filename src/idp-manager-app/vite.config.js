@@ -8,9 +8,11 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
-
+  const plugins = [vue()]
+  if (env.VITE_DEV_TOOLS) plugins.push(vueDevTools())
   return {
-    plugins: [vue(), vueDevTools()],
+    plugins: plugins,
+    base: env.VITE_BASE_URL,
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
