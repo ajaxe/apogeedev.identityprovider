@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import ClientListView from '@/views/ClientListView.vue'
 import { useAuthStore } from '@/stores/auth'
+import EmptyLayout from '@/layouts/EmptyLayout.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -30,6 +31,7 @@ const router = createRouter({
     {
       path: '/login',
       name: 'Login',
+      meta: { layout: EmptyLayout },
       component: () => import('@/views/LoginView.vue'),
     },
     {

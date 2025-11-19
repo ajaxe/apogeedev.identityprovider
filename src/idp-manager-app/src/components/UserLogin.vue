@@ -1,6 +1,5 @@
 <template>
   <div v-if="!isLoggedIn">
-    <p>You are not logged in.</p>
     <button class="btn btn-primary btn-large" @click="login">Log In</button>
   </div>
 </template>
