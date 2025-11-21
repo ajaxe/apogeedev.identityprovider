@@ -12,11 +12,10 @@ public class AppClientListRequestHandler : IRequestHandler<AppClientListRequest,
     private readonly IOpenIddictMongoDbContext dbContext;
     private readonly OpenIddictMongoDbOptions options;
 
-    public AppClientListRequestHandler(IOpenIddictMongoDbContext dbContext,
-        IOptions<OpenIddictMongoDbOptions> options)
+    public AppClientListRequestHandler(OperationContext opContext)
     {
-        this.dbContext = dbContext;
-        this.options = options.Value;
+        this.dbContext = opContext.DbContext;
+        this.options = opContext.Options;
     }
 
     public async Task<AppClientListResponse> Handle(AppClientListRequest request,
@@ -50,16 +49,6 @@ public class AppClientListRequestHandler : IRequestHandler<AppClientListRequest,
 public class AppClientListRequest : IRequest<AppClientListResponse>
 {
     public string ClientId { get; set; } = default!;
-}
-
-public class AppClientData
-{
-    public string ClientId { get; set; } = default!;
-    public string DisplayName { get; set; } = default!;
-    public string ApplicationType { get; set; } = default!;
-    public string ClientType { get; set; } = default!;
-    public string[] RedirectUris { get; set; } = default!;
-    public string[] PostLogoutRedirectUris { get; set; } = default!;
 }
 
 public class AppClientListResponse : List<AppClientData>

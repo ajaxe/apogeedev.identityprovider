@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using ApogeeDev.IdentityProvider.Host.Operations.RequestHandlers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -48,9 +49,14 @@ public class AppClientController : ControllerBase
 
     [HttpPost]
     [Route("")]
-    public IActionResult ClientAdd([FromBody] AppClientData model)
+    public async Task<IActionResult> ClientAdd([FromBody] AppClientData model)
     {
-        return Ok();
+        var response = await mediator.Send(new AppClientAddRequest
+        {
+            Data = model,
+        });
+
+        return Ok(response);
     }
 
     [HttpPost]

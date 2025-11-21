@@ -1,5 +1,5 @@
 <template>
-  <ClientEdit v-model="model" @cancel="gotoList" />
+  <ClientEdit v-model="model" @cancel="gotoList" @submit="save" />
 </template>
 <script setup>
 import ClientEdit from '@/components/clients/ClientEdit.vue'
@@ -20,4 +20,8 @@ onMounted(() => void load())
 const load = async () => (model.value = await store.fetchClientById(props.clientId))
 
 const gotoList = () => router.push({ name: 'clients' })
+
+const save = async () => {
+  await store.add(model.value)
+}
 </script>

@@ -217,6 +217,8 @@ public class Startup
             (sp, o) => o.UseMongoDB(sp.GetRequiredService<IMongoClient>(),
                 sp.GetRequiredService<IOptions<AppOptions>>().Value.DatabaseName)
         );
+
+        services.AddTransient<OperationContext>();
     }
 
     private void ConfigureOpenIdDictServices(IServiceCollection services)

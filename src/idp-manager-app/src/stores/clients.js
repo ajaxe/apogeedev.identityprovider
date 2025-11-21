@@ -20,8 +20,18 @@ export const useClientStore = defineStore('clients', {
     }),
   },
   actions: {
-    add(client) {
-      this.list.push(client)
+    async add(client) {
+      const r = await apiClient.post('/api/app-client', client)
+      const d = await r.json()
+      if (!apiClient.isSuccessful(r)) {
+        return {
+          success: false,
+          errors: d.errors,
+        }
+      }
+      const { clientSecret, ...c } = d
+      this.list.push(c)
+      return c
     },
     async fetchClients() {
       const r = await apiClient.get('/api/app-client')

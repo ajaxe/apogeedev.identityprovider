@@ -6,7 +6,7 @@ import UserLogin from '@/components/UserLogin.vue'
 <template>
   <div class="container col-xl-10 col-xxl-8 px-4 py-5">
     <div class="bg-dark text-secondary px-4 py-5 text-center">
-      <div class="py-5">
+      <div class="py-5 border rounded-3 bg-body-tertiary">
         <div class="d-flex justify-content-center mb-5">
           <AppBrand />
           <div class="clearfix"></div>

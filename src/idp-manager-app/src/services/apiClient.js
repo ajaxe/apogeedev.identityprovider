@@ -22,6 +22,22 @@ const get = async (url, skipRedirect) => {
   return r
 }
 
+const post = async (url, body) => {
+  const token = getApiToken()
+  if (!token) {
+    return
+  }
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(body),
+  })
+  return r
+}
+
 /**
  *
  * @param {Response} response
@@ -32,6 +48,7 @@ const isSuccessful = (response) => {
 }
 export const apiClient = {
   get,
+  post,
   isSuccessful,
 }
 

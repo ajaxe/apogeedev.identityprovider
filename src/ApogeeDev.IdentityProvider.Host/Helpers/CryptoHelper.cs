@@ -7,7 +7,7 @@ namespace ApogeeDev.IdentityProvider.Host.Helpers;
 
 public class CryptoHelper : ICryptoHelper
 {
-    private static readonly int SaltSize = 16; // Size of salt in bytes
+    private const int SaltSize = 16; // Size of salt in bytes
     private static readonly int KeySize = 32; // Size of AES key (256 bits)
     private static readonly int IvSize = 16; // Size of IV (128 bits)
     private static readonly int KeyStretchIterations = 10000;
@@ -22,7 +22,7 @@ public class CryptoHelper : ICryptoHelper
     {
         if (string.IsNullOrWhiteSpace(plainText)) return plainText;
 
-        byte[] salt = GenerateSalt();
+        byte[] salt = GenerateRandom();
         var cipherBytes = Encrypt(plainText, salt);
 
         return WebEncoders.Base64UrlEncode(salt.Concat(cipherBytes).ToArray());
@@ -102,8 +102,9 @@ public class CryptoHelper : ICryptoHelper
         }
     }
 
-    public static byte[] GenerateSalt()
+    public byte[] GenerateRandom(int? byteCount = null)
     {
-        return RandomNumberGenerator.GetBytes(SaltSize);
+        byteCount = byteCount ?? SaltSize;
+        return RandomNumberGenerator.GetBytes(byteCount.Value);
     }
 }
