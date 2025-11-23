@@ -46,6 +46,17 @@ public class AppClientController : ControllerBase
     {
         return await Task.FromResult(NoContent());
     }
+    [HttpDelete]
+    [Route("{id}")]
+    public async Task<IActionResult> ClientDelete(string id)
+    {
+        mediator.Send(new AppClientDeleteRequest
+        {
+            ClientId = id,
+        });
+
+        return NoContent();
+    }
 
     [HttpPost]
     [Route("")]

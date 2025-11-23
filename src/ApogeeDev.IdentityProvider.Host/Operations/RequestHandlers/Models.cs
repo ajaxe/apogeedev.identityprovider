@@ -27,10 +27,14 @@ public class AppClientData : IValidatableObject
         if (clientTypes.Contains(ClientType?.ToLower()) == false)
             yield return new ValidationResult("Invalid ClientType", [nameof(ClientType)]);
 
-        if (RedirectUris == null || RedirectUris.Any(s => string.IsNullOrWhiteSpace(s)))
+        if (RedirectUris == null
+            || RedirectUris.Length == 0
+            || RedirectUris.Any(s => string.IsNullOrWhiteSpace(s)))
             yield return new ValidationResult("Invalid Redirect uris", [nameof(RedirectUris)]);
 
-        if (PostLogoutRedirectUris == null || PostLogoutRedirectUris.Any(s => string.IsNullOrWhiteSpace(s)))
+        if (PostLogoutRedirectUris == null
+            || PostLogoutRedirectUris.Length == 0
+            || PostLogoutRedirectUris.Any(s => string.IsNullOrWhiteSpace(s)))
             yield return new ValidationResult("Invalid Redirect uris", [nameof(PostLogoutRedirectUris)]);
     }
 }
