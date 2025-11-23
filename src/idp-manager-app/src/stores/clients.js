@@ -43,5 +43,14 @@ export const useClientStore = defineStore('clients', {
       const d = await r.json()
       return d
     },
+    async deleteClient(clientId) {
+      const r = await apiClient.delete(`/api/app-client/${clientId}`)
+      if (apiClient.isSuccessful(r)) {
+        this.list = this.list.filter((c) => c.clientId !== clientId)
+        return true
+      } else {
+        return false
+      }
+    },
   },
 })

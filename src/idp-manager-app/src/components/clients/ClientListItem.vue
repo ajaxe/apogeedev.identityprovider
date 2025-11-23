@@ -20,13 +20,14 @@
       <a href="javascript:void(0)" @click="navigateEdit" class="text-blue-600 hover:text-blue-900"
         >Edit</a
       >
-      <a href="javascript:void(0)" class="text-blue-600 hover:text-blue-900 ms-3">Delete</a><br />
+      <ClientListItemDelete :clientId="item.clientId" /><br />
       <a href="javascript:void(0)" class="text-blue-600 hover:text-blue-900">Regenerate Secret</a>
     </td>
   </tr>
 </template>
 <script setup>
 import { useRouter } from 'vue-router'
+import ClientListItemDelete from './ClientListItemDelete.vue'
 
 const props = defineProps({
   item: Object,

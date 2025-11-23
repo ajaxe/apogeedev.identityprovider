@@ -2,7 +2,9 @@
   <div class="d-flex justify-content-between mb-3">
     <h1 class="text-3xl font-bold text-gray-800">OIDC Client Configuration</h1>
   </div>
-
+  <div class="text-danger-emphasis my-2" v-if="errors.Other">
+    {{ errors.Other[0] }}
+  </div>
   <div class="card">
     <div class="card-body">
       <div class="mb-3">
@@ -14,13 +16,7 @@
       </div>
       <div class="mb-3">
         <label for="client-id" class="form-label">Client ID</label>
-        <input
-          asp-for="ClientId"
-          class="form-control"
-          id="client-id"
-          v-model="model.clientId"
-          :readonly="true"
-        />
+        <input asp-for="ClientId" class="form-control" id="client-id" v-model="model.clientId" />
         <div class="text-danger-emphasis" v-if="errors.ClientId">
           {{ errors.ClientId[0] }}
         </div>
@@ -61,9 +57,9 @@
   </div>
 </template>
 <script setup>
-import AppTypeSelect from '../common/AppTypeSelect.vue'
-import ClientTypeSelect from '../common/ClientTypeSelect.vue'
-import MultipleUriAdd from '../common/MultipleUriAdd.vue'
+import AppTypeSelect from '@/components/forms/AppTypeSelect.vue'
+import ClientTypeSelect from '@/components/forms/ClientTypeSelect.vue'
+import MultipleUriAdd from '@/components/forms/MultipleUriAdd.vue'
 
 const { errors } = defineProps({
   errors: {

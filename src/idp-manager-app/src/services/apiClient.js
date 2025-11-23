@@ -38,6 +38,20 @@ const post = async (url, body) => {
   return r
 }
 
+const deleteOp = async (url) => {
+  const token = getApiToken()
+  if (!token) {
+    return
+  }
+  const r = await fetch(url, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+  return r
+}
+
 /**
  *
  * @param {Response} response
@@ -49,6 +63,7 @@ const isSuccessful = (response) => {
 export const apiClient = {
   get,
   post,
+  delete: deleteOp,
   isSuccessful,
 }
 
