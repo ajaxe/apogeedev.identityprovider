@@ -62,9 +62,10 @@ public class AppClientAddRequestHandler : IRequestHandler<AppClientAddRequest, A
                 ClientSecret = clientSecret,
                 ClientId = request.Data.ClientId,
                 DisplayName = request.Data.DisplayName,
-                RedirectUris = request.Data.RedirectUris,
                 ApplicationType = request.Data.ApplicationType,
                 ClientType = request.Data.ClientType,
+                RedirectUris = request.Data.RedirectUris,
+                PostLogoutRedirectUris = request.Data.PostLogoutRedirectUris,
             }
         };
     }

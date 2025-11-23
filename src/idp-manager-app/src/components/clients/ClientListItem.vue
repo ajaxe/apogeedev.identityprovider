@@ -29,11 +29,10 @@
 import { useRouter } from 'vue-router'
 import ClientListItemDelete from './ClientListItemDelete.vue'
 
-const props = defineProps({
+const { /* type {import('@/types').ClientListItem} */ item } = defineProps({
   item: Object,
 })
-const { /* type {import('@/types').ClientListItem} */ item } = props
-
+console.log(item)
 const router = useRouter()
 const navigateEdit = () => router.push({ name: 'edit-client', params: { clientId: item.clientId } })
 const getCss = (type) => {

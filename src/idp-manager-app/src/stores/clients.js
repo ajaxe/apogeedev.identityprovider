@@ -29,7 +29,8 @@ export const useClientStore = defineStore('clients', {
           errors: d.errors,
         }
       }
-      const { clientSecret, ...c } = d
+      const { appClientData } = d
+      const { clientSecret, ...c } = appClientData
       this.list.push(c)
       return c
     },

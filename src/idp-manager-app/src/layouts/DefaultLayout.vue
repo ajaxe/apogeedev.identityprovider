@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppBrand from '@/components/AppBrand.vue'
+import AppNotificationContainer from '@/components/notifications/AppNotificationContainer.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 </script>
 
@@ -17,4 +18,5 @@ import UserAvatar from '@/components/UserAvatar.vue'
   <div class="container mt-5">
     <slot />
   </div>
+  <AppNotificationContainer />
 </template>

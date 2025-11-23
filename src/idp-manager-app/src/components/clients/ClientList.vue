@@ -3,11 +3,16 @@ import { onMounted } from 'vue'
 import { useClientStore } from '@/stores/clients'
 import ClientListItem from './ClientListItem.vue'
 import { storeToRefs } from 'pinia'
+import { useNotifications } from '@/stores/notifications'
 
 const store = useClientStore()
+const notifStore = useNotifications()
 const { list } = storeToRefs(store)
 
-onMounted(() => void store.fetchClients())
+onMounted(
+  () =>
+    void store.fetchClients().then(() => notifStore.pushSuccess('Clients loaded successfully.')),
+)
 </script>
 
 <template>
