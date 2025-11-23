@@ -10,11 +10,11 @@
   </div>
 </template>
 <script setup>
-import { useNotifications } from '@/stores/notifications'
+import { useNotificationStore } from '@/stores/notifications'
 import AppNotification from './AppNotification.vue'
 import { storeToRefs } from 'pinia'
 
-const store = useNotifications()
+const store = useNotificationStore()
 const { notifications } = storeToRefs(store)
 const handleHidden = (id) => store.remove(id)
 </script>

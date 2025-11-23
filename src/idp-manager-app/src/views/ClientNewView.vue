@@ -6,11 +6,11 @@ import { ref } from 'vue'
 import ClientEdit from '@/components/clients/ClientEdit.vue'
 import { useRouter } from 'vue-router'
 import { useClientStore } from '@/stores/clients'
-import { useNotifications } from '@/stores/notifications'
+import { useNotification } from '@/composables/useNotification'
 
 const router = useRouter()
 const store = useClientStore()
-const notifStore = useNotifications()
+const { notifyError, notifySuccess } = useNotification()
 
 const model = ref({
   displayName: '',
@@ -30,9 +30,9 @@ const save = async () => {
   var result = await store.add(model.value)
   if (result.errors) {
     errors.value = result.errors
-    notifStore.pushError('Fix validation errors.')
+    notifyError('Fix validation errors.')
   } else {
-    notifStore.pushSuccess('Application client successfuly added.')
+    notifySuccess('Application client successfuly added.')
   }
 }
 </script>

@@ -1,17 +1,28 @@
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, useTemplateRef, watch } from 'vue'
 import { useClientStore } from '@/stores/clients'
 import ClientListItem from './ClientListItem.vue'
 import { storeToRefs } from 'pinia'
-import { useNotifications } from '@/stores/notifications'
+import { useDeleteModalStore } from '@/stores/deleteModal'
+import DeleteConfirmationModal from '../modals/DeleteConfirmationModal.vue'
 
 const store = useClientStore()
-const notifStore = useNotifications()
+const deleteModalStore = useDeleteModalStore()
 const { list } = storeToRefs(store)
 
-onMounted(
-  () =>
-    void store.fetchClients().then(() => notifStore.pushSuccess('Clients loaded successfully.')),
+onMounted(() => void store.fetchClients())
+
+const deleteModalRef = useTemplateRef('delete-modal')
+
+watch(
+  () => deleteModalStore.isOpen,
+  (isOpen) => {
+    if (isOpen) {
+      deleteModalRef.value.show()
+    } else {
+      deleteModalRef.value.hide()
+    }
+  },
 )
 </script>
 
@@ -52,4 +63,12 @@ onMounted(
       <ClientListItem v-for="v in list" :item="v" :key="v.clientId" />
     </tbody>
   </table>
+  <DeleteConfirmationModal
+    ref="delete-modal"
+    :item-name="deleteModalStore.displayName"
+    :title="deleteModalStore.title"
+    @confirm="deleteModalStore.handleConfirm"
+    @hidden="deleteModalStore.handleHidden"
+    @cancel="deleteModalStore.handleCancel"
+  />
 </template>

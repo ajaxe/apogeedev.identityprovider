@@ -20,7 +20,7 @@
       <a href="javascript:void(0)" @click="navigateEdit" class="text-blue-600 hover:text-blue-900"
         >Edit</a
       >
-      <ClientListItemDelete :clientId="item.clientId" /><br />
+      <ClientListItemDelete :client="item" /><br />
       <a href="javascript:void(0)" class="text-blue-600 hover:text-blue-900">Regenerate Secret</a>
     </td>
   </tr>
@@ -32,7 +32,6 @@ import ClientListItemDelete from './ClientListItemDelete.vue'
 const { /* type {import('@/types').ClientListItem} */ item } = defineProps({
   item: Object,
 })
-console.log(item)
 const router = useRouter()
 const navigateEdit = () => router.push({ name: 'edit-client', params: { clientId: item.clientId } })
 const getCss = (type) => {
