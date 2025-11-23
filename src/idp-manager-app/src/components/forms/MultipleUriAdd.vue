@@ -1,15 +1,21 @@
 <template>
-  <template v-for="u in model" :key="u">
-    <UriListItem :uri="u" @click="() => remove(u)" />
-  </template>
+  <div class="d-flex flex-wrap gap-2 mb-3">
+    <template v-for="u in model" :key="u">
+      <UriListItem :uri="u" @click="() => remove(u)" />
+    </template>
+    <UriListItem uri="a" v-if="model?.length <= 0" is-empty />
+  </div>
 
-  <div class="d-flex multiple-uri-input">
-    <div class="w-100 pe-2">
-      <input class="form-control" v-model="uri" ref="input" :id="id" />
-    </div>
-    <div class="flex-shrink-1">
-      <button class="btn btn-secondary btn-small" @click="add">Add</button>
-    </div>
+  <div class="input-group mb-3">
+    <input
+      class="form-control bg-dark text-light border-secondary"
+      placeholder="https://example.com/callback"
+      type="text"
+      v-model="uri"
+      ref="input"
+      :id="id"
+    />
+    <button class="btn btn-outline-primary" @click="add">Add</button>
   </div>
 </template>
 <script setup>

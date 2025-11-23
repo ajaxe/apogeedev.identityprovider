@@ -86,7 +86,7 @@ defineExpose({ show, hide })
         </div>
 
         <div class="modal-body">
-          <p class="lead mb-3">
+          <p class="text-secondary-emphasis mb-3">
             This action cannot be undone. This will permanently delete the
             <strong>{{ itemName }}</strong> client and remove all associated active sessions.
           </p>

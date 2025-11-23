@@ -7,4 +7,20 @@
  * @property {Array<string>} redirectUris
  * @property {Array<string>} postLogoutRedirectUris
  */
+
+/**
+ * @typedef {ClientListItem & { clientSecret: string } AppClientDataWithSecret
+ */
+
+/**
+ * @typedef {Object<string, string[]>} ErrorResponseProps
+ *
+ */
+/**
+ * @typedef {object} ErrorsRespose
+ * @property {ErrorResponseProps} errors
+ */
+/**
+ * @typedef {AppClientDataWithSecret & ErrorsRespose} AppClientDataWithSecretRespose
+ */
 export {}

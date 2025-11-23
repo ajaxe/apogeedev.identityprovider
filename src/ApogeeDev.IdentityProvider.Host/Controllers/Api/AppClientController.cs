@@ -50,7 +50,7 @@ public class AppClientController : ControllerBase
     [Route("{id}")]
     public async Task<IActionResult> ClientDelete(string id)
     {
-        mediator.Send(new AppClientDeleteRequest
+        await mediator.Send(new AppClientDeleteRequest
         {
             ClientId = id,
         });
