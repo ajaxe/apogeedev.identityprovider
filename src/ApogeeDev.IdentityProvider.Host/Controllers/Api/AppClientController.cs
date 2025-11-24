@@ -44,7 +44,12 @@ public class AppClientController : ControllerBase
     [Route("{id}")]
     public async Task<IActionResult> ClientEdit(string id, [FromBody] AppClientData model)
     {
-        return await Task.FromResult(NoContent());
+        await mediator.Send(new AppClientUpdateRequest
+        {
+            ClientId = id,
+            Data = model,
+        });
+        return NoContent();
     }
     [HttpDelete]
     [Route("{id}")]

@@ -22,7 +22,7 @@ export const useClientStore = defineStore('clients', {
   actions: {
     /**
      *
-     * @param {import('@/types').ClientListItem[]} client
+     * @param {import('@/types').ClientListItem} client
      * @returns {Promise<import('@/types').AppClientDataWithSecretRespose>}
      */
     async add(client) {
@@ -37,6 +37,21 @@ export const useClientStore = defineStore('clients', {
       const { clientSecret, ...c } = appClientData
       this.list.push(c)
       return appClientData
+    },
+    /**
+     *
+     * @param {import('@/types').ClientListItem} client
+     * @returns {Promise<import('@/types').ErrorsRespose|void>}
+     */
+    async update(client) {
+      const r = await apiClient.put(`/api/app-client/${client.clientId}`, client)
+
+      if (!apiClient.isSuccessful(r)) {
+        const d = await r.json()
+        return {
+          errors: d.errors,
+        }
+      }
     },
     async fetchClients() {
       const r = await apiClient.get('/api/app-client')

@@ -38,6 +38,22 @@ const post = async (url, body) => {
   return r
 }
 
+const put = async (url, body) => {
+  const token = getApiToken()
+  if (!token) {
+    return
+  }
+  const r = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(body),
+  })
+  return r
+}
+
 const deleteOp = async (url) => {
   const token = getApiToken()
   if (!token) {
@@ -63,6 +79,7 @@ const isSuccessful = (response) => {
 export const apiClient = {
   get,
   post,
+  put,
   delete: deleteOp,
   isSuccessful,
 }
