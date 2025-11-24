@@ -29,7 +29,7 @@
 import { useRouter } from 'vue-router'
 import ClientListItemDelete from './ClientListItemDelete.vue'
 
-const { /* type {import('@/types').ClientListItem} */ item } = defineProps({
+const { /** @type {import('@/types').ClientListItem} */ item } = defineProps({
   item: Object,
 })
 const router = useRouter()

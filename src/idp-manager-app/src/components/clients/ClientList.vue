@@ -5,6 +5,8 @@ import ClientListItem from './ClientListItem.vue'
 import { storeToRefs } from 'pinia'
 import { useDeleteModalStore } from '@/stores/deleteModal'
 import DeleteConfirmationModal from '../modals/DeleteConfirmationModal.vue'
+import { useViewport } from '@/composables/useViewport'
+import ClientCard from './ClientCard.vue'
 
 const store = useClientStore()
 const deleteModalStore = useDeleteModalStore()
@@ -13,6 +15,8 @@ const { list } = storeToRefs(store)
 onMounted(() => void store.fetchClients())
 
 const deleteModalRef = useTemplateRef('delete-modal')
+
+const { breakpoints } = useViewport()
 
 watch(
   () => deleteModalStore.isOpen,
@@ -27,7 +31,7 @@ watch(
 </script>
 
 <template>
-  <table class="table table-hover">
+  <table class="table table-hover" v-if="breakpoints.lg">
     <thead class="bg-gray-50">
       <tr>
         <th
@@ -63,6 +67,9 @@ watch(
       <ClientListItem v-for="v in list" :item="v" :key="v.clientId" />
     </tbody>
   </table>
+  <template v-else>
+    <ClientCard v-for="v in list" :key="v.clientId" :client="v" />
+  </template>
   <DeleteConfirmationModal
     ref="delete-modal"
     :item-name="deleteModalStore.displayName"
