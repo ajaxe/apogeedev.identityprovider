@@ -10,12 +10,20 @@ Before performing any task, ensure the project is correctly set up.
 To restore dependencies and build the project, run:
 
 ```bash
+# Backend
 dotnet restore
 dotnet build
+
+# Frontend
+cd src/idp-manager-app
+pnpm install
+pnpm build
 ```
 
 **Configuration & Secrets:**
-The main configuration is in `src/ApogeeDev.IdentityProvider.Host/appsettings.json`. For development, overrides are in `appsettings.Development.json`.
+
+- **Backend:** `src/ApogeeDev.IdentityProvider.Host/appsettings.json`. Overrides in `appsettings.Development.json`.
+- **Frontend:** `src/idp-manager-app/.env.development` and `.env.production`.
 
 > **NEVER** ask for secret values like API keys or connection strings. If a task requires a secret, please ask me to configure it using the .NET Secret Manager tool:
 
@@ -27,19 +35,19 @@ The main configuration is in `src/ApogeeDev.IdentityProvider.Host/appsettings.js
 
 Follow these standard procedures for building, testing, and running the application.
 
-**Building the Code:**
-Always ensure the code builds successfully after any change.
-
-```bash
-dotnet build
-```
-
 **Running the Application:**
-To run the main host project for testing or debugging:
 
-```bash
-dotnet run --project src/ApogeeDev.IdentityProvider.Host/ApogeeDev.IdentityProvider.Host.csproj
-```
+- **Backend (ASP.NET Core):**
+
+  ```bash
+  dotnet run --project src/ApogeeDev.IdentityProvider.Host/ApogeeDev.IdentityProvider.Host.csproj
+  ```
+
+- **Frontend (Vue 3):**
+  ```bash
+  cd src/idp-manager-app
+  pnpm dev
+  ```
 
 **Testing:**
 This project does not currently have a dedicated test project. When adding new features that can be unit tested, please create a corresponding test project and add tests. When tests are available, run them with:
@@ -49,34 +57,57 @@ dotnet test
 ```
 
 **Code Formatting:**
-Before finalizing changes, apply standard .NET code formatting.
 
-```bash
-dotnet format
-```
+- **Backend:**
+  ```bash
+  dotnet format
+  ```
+- **Frontend:**
+  ```bash
+  cd src/idp-manager-app
+  pnpm format
+  pnpm lint
+  ```
 
 ## 3. Coding Conventions & Style Guide
 
 Adherence to the existing code style is critical.
 
+### General
+
 - **Analyze First:** Before writing any code, read the surrounding files to understand the established patterns, naming conventions, and style.
+
+### Backend (C# / .NET)
+
 - **Naming:** Follow existing C# conventions (e.g., `PascalCase` for classes and methods, `camelCase` for local variables).
 - **Style:** Mimic the brace style, use of `var`, and `using` statement organization found in existing files.
 - **File Structure:** Place new files in the appropriate directories based on their function (e.g., new controllers in `Controllers`, new services in a corresponding `Services` or `Operations` folder).
 
+### Frontend (Vue 3 / JS)
+
+- **Framework:** Vue 3 with Composition API (`<script setup>`).
+- **Build Tool:** Vite.
+- **State Management:** Pinia.
+- **Styling:** Bootstrap 5 (via `bootstrap` and `bootstrap-icons`).
+- **Linting:** ESLint + Prettier + Oxlint. Always run `pnpm lint` and `pnpm format` before committing.
+
 ## 4. Architectural Overview
 
-This is an ASP.NET Core Identity Provider application.
+This is a hybrid application with an ASP.NET Core backend and a Vue 3 frontend.
 
-- **Host Project:** `ApogeeDev.IdentityProvider.Host` is the main executable web application.
-- **Controllers:** Handle incoming HTTP requests (e.g., `OAuthController.cs`).
-- **Operations (CQRS Pattern):** The `Operations` directory suggests a CQRS (Command Query Responsibility Segregation) pattern, likely using a library like MediatR.
-  - **Request Handlers:** Contain the core business logic for specific actions (e.g., `PostGoogleLoginHandler.cs`). New business logic should be added here.
-  - **Processors:** Contain logic for processing claims from external providers (e.g., `GoogleClaimsProcessor.cs`).
-- **Models:**
-  - `ViewModels`: Data transfer objects (DTOs) for views.
-  - `DatabaseModels`: Entities for the database.
-- **Data:** The `ApplicationDbContext.cs` file indicates usage of Entity Framework Core for database interaction.
+### Backend: `ApogeeDev.IdentityProvider.Host`
+
+- **Type:** ASP.NET Core Identity Provider (OpenIddict).
+- **Database:** MongoDB (via `MongoDB.Driver` and `MongoDB.EntityFrameworkCore`).
+- **Architecture:** CQRS (Command Query Responsibility Segregation) using MediatR.
+  - **Operations:** Contains `RequestHandlers` (business logic) and `Processors`.
+- **Observability:** OpenTelemetry (Prometheus, OTLP).
+
+### Frontend: `idp-manager-app`
+
+- **Type:** Single Page Application (SPA).
+- **Location:** `src/idp-manager-app`.
+- **Key Libraries:** `oidc-client-ts` for authentication, `vue-router` for routing.
 
 ## 5. How to Prompt Me Effectively
 
@@ -84,16 +115,12 @@ To get the best results, please structure your requests clearly.
 
 1. **Be Specific:**
 
-   > **Bad:** "Fix the login page."
-   >
    > **Good:** "In `Login.cshtml`, the Google sign-in button is not working. I suspect the issue is in the `PostGoogleLoginHandler.cs`. Please investigate the handler and fix the logic."
 
 2. **Provide Context:** Include file paths, relevant code snippets, and any error messages.
 
 3. **Define Scope:** Clearly state the boundaries of the task.
 
-   > **Bad:** "Add Microsoft login."
-   >
    > **Good:** "Implement Microsoft login. This will involve:
    >
    > 1. Creating a `MicrosoftClaimsProcessor.cs`.
