@@ -10,7 +10,7 @@ import ClientCard from './ClientCard.vue'
 
 const store = useClientStore()
 const deleteModalStore = useDeleteModalStore()
-const { list } = storeToRefs(store)
+const { filteredClients: list } = storeToRefs(store)
 
 onMounted(() => void store.fetchClients())
 

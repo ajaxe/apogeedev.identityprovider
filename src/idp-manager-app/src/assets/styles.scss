@@ -62,7 +62,7 @@ $theme-colors: map-merge(
 @import 'bootstrap/scss/buttons';
 @import 'bootstrap/scss/transitions';
 @import 'bootstrap/scss/dropdown';
-// @import "bootstrap/scss/button-group";
+@import 'bootstrap/scss/button-group';
 // @import "bootstrap/scss/nav";
 // @import "bootstrap/scss/navbar"; // Requires nav
 @import 'bootstrap/scss/card';
@@ -71,7 +71,7 @@ $theme-colors: map-merge(
 // @import "bootstrap/scss/pagination";
 @import 'bootstrap/scss/badge';
 // @import "bootstrap/scss/alert";
-// @import "bootstrap/scss/progress";
+@import 'bootstrap/scss/progress';
 // @import "bootstrap/scss/list-group";
 @import 'bootstrap/scss/close';
 @import 'bootstrap/scss/toasts';

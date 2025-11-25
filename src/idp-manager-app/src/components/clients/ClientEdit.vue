@@ -39,6 +39,7 @@
             id="client-id"
             v-model="model.clientId"
             asp-for="ClientId"
+            :readonly="isEdit"
           />
           <div class="text-danger-emphasis small mt-1" v-if="errors?.ClientId">
             {{ errors?.ClientId[0] }}
@@ -133,10 +134,14 @@ import AppTypeSelect from '@/components/forms/AppTypeSelect.vue'
 import ClientTypeSelect from '@/components/forms/ClientTypeSelect.vue'
 import MultipleUriAdd from '@/components/forms/MultipleUriAdd.vue'
 
-const { errors } = defineProps({
+const { errors, isEdit } = defineProps({
   errors: {
     type: Object,
     default: () => ({}),
+  },
+  isEdit: {
+    type: Boolean,
+    default: false,
   },
 })
 /**

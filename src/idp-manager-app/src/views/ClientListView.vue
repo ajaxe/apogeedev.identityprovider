@@ -1,9 +1,15 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import ClientList from '@/components/clients/ClientList.vue'
+import ClientListSummary from '@/components/clients/ClientListSummary.vue'
+import ClientListFilter from '@/components/clients/ClientListFilter.vue'
+import { useClientStore } from '@/stores/clients.js'
+import { storeToRefs } from 'pinia'
 
 const router = useRouter()
 const newClient = () => router.push({ name: 'new-client' })
+const store = useClientStore()
+const { stats } = storeToRefs(store)
 </script>
 
 <template>
@@ -13,6 +19,11 @@ const newClient = () => router.push({ name: 'new-client' })
       + Create New Client
     </button>
   </div>
+
+  <ClientListSummary :stats="stats" />
+
+  <ClientListFilter />
+
   <div>
     <ClientList />
   </div>
