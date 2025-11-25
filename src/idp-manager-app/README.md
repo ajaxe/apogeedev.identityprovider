@@ -1,38 +1,37 @@
-# vue-project
+# IDP Manager App (Frontend)
 
-This template should help get you started developing with Vue 3 in Vite.
+Single Page Application (SPA) for managing the Identity Provider.
 
-## Recommended IDE Setup
+## Tech Stack
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+- **Framework:** Vue 3 (Composition API with `<script setup>`)
+- **Build Tool:** Vite
+- **State Management:** Pinia
+- **Styling:** Bootstrap 5 (via `bootstrap` and `bootstrap-icons`)
+- **Auth:** oidc-client-ts
+- **Routing:** vue-router
 
-## Recommended Browser Setup
+## Setup & Run
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) 
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
+```bash
+# Install
 pnpm install
-```
 
-### Compile and Hot-Reload for Development
-
-```sh
+# Dev Server
 pnpm dev
-```
 
-### Compile and Minify for Production
-
-```sh
+# Build
 pnpm build
 ```
+
+## Development Workflow
+
+- **Linting:** `pnpm lint`
+- **Formatting:** `pnpm format`
+  > **Note:** Always run lint and format before committing.
+
+## Coding Conventions
+
+- Use `<script setup>` syntax.
+- Ensure all new components are responsive.
+- Configuration in `.env.development` and `.env.production`.
