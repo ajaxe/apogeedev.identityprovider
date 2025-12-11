@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS builder
+FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS builder
 
 ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
 
@@ -15,7 +15,7 @@ RUN dotnet restore ./ApogeeDev.IdentityProvider.Host.csproj
 COPY ./src/ApogeeDev.IdentityProvider.Host/ .
 RUN dotnet publish -c Release -r linux-musl-x64 -o published --no-self-contained
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine
 
 RUN apk add bash icu-libs krb5-libs libgcc libintl libssl3 libstdc++ zlib curl
 
