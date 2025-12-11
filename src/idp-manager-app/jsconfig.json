@@ -2,7 +2,9 @@
   "compilerOptions": {
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "checkJs": true
   },
+  "include": ["src/**/*", "src/**/*.vue"],
   "exclude": ["node_modules", "dist"]
 }

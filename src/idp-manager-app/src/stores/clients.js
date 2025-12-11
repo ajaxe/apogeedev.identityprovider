@@ -61,10 +61,13 @@ export const useClientStore = defineStore('clients', {
     /**
      *
      * @param {import('@/types').ClientListItem} client
-     * @returns {Promise<import('@/types').AppClientDataWithSecretRespose>}
+     * @returns {Promise<import('@/types').AppClientDataWithSecret | import('@/types').ErrorsResponse>}
      */
     async add(client) {
       const r = await apiClient.post('/api/app-client', client)
+      /**
+       * @type {import('@/types').AppClientDataWithSecretResponse}
+       */
       const d = await r.json()
       if (!apiClient.isSuccessful(r)) {
         return {
@@ -79,7 +82,7 @@ export const useClientStore = defineStore('clients', {
     /**
      *
      * @param {import('@/types').ClientListItem} client
-     * @returns {Promise<import('@/types').ErrorsRespose|void>}
+     * @returns {Promise<import('@/types').ErrorsResponse|void>}
      */
     async update(client) {
       const r = await apiClient.put(`/api/app-client/${client.clientId}`, client)
