@@ -1,4 +1,4 @@
-
+using ApogeeDev.IdentityProvider.Host.Models.Configuration;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
@@ -7,16 +7,13 @@ using OpenIddict.MongoDb.Models;
 
 namespace ApogeeDev.IdentityProvider.Host.Operations.RequestHandlers;
 
-public class AppClientListRequestHandler : IRequestHandler<AppClientListRequest, AppClientListResponse>
+public class AppClientListRequestHandler(OperationContext opContext,
+    IOptionsSnapshot<AppClientOptions> options)
+    : IRequestHandler<AppClientListRequest, AppClientListResponse>
 {
-    private readonly IOpenIddictMongoDbContext dbContext;
-    private readonly OpenIddictMongoDbOptions options;
-
-    public AppClientListRequestHandler(OperationContext opContext)
-    {
-        this.dbContext = opContext.DbContext;
-        this.options = opContext.Options;
-    }
+    private readonly IOpenIddictMongoDbContext dbContext = opContext.DbContext;
+    private readonly OpenIddictMongoDbOptions options = opContext.Options;
+    private readonly AppClientOptions appClientOptions = options.Value;
 
     public async Task<AppClientListResponse> Handle(AppClientListRequest request,
         CancellationToken cancellationToken)
@@ -42,6 +39,12 @@ public class AppClientListRequestHandler : IRequestHandler<AppClientListRequest,
             })
             .ToListAsync(cancellationToken);
 
+        foreach (var itm in clients.IntersectBy(appClientOptions.Clients.Select(x => x.ClientId),
+                                                    (v) => v.ClientId))
+        {
+            itm.CanEdit = false;
+        }
+
         return new AppClientListResponse(clients);
     }
 }
@@ -51,9 +54,4 @@ public class AppClientListRequest : IRequest<AppClientListResponse>
     public string ClientId { get; set; } = default!;
 }
 
-public class AppClientListResponse : List<AppClientData>
-{
-    public AppClientListResponse(IEnumerable<AppClientData> collection) : base(collection)
-    {
-    }
-}
+public class AppClientListResponse(IEnumerable<AppClientData> collection) : List<AppClientData>(collection);

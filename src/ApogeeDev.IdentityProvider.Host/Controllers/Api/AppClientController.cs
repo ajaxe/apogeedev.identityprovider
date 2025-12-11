@@ -10,15 +10,8 @@ namespace ApogeeDev.IdentityProvider.Host.Controllers.Api;
 [Authorize(
     AuthenticationSchemes = OpenIddict.Validation.AspNetCore.OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme,
     Policy = "RequireAppManager")]
-public class AppClientController : ControllerBase
+public class AppClientController(IMediator mediator) : ControllerBase
 {
-    private readonly IMediator mediator;
-
-    public AppClientController(IMediator mediator)
-    {
-        this.mediator = mediator;
-    }
-
     [HttpGet]
     [Route("")]
     public async Task<IActionResult> Client()

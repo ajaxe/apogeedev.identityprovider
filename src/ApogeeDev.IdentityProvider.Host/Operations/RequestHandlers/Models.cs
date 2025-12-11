@@ -10,6 +10,7 @@ public class AppClientData : IValidatableObject
     public string ClientType { get; set; } = default!;
     public string[] RedirectUris { get; set; } = default!;
     public string[] PostLogoutRedirectUris { get; set; } = default!;
+    public bool CanEdit { get; set; } = true;
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {

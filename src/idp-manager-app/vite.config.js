@@ -43,6 +43,14 @@ export default defineConfig(({ mode }) => {
             rejectUnauthorized: false,
           },
         },
+        '/.well-known/openid-configuration': {
+          target: env.VITE_PROXY_URL,
+          changeOrigin: true,
+          secure: false,
+          ssl: {
+            rejectUnauthorized: false,
+          },
+        },
       },
     },
   }
