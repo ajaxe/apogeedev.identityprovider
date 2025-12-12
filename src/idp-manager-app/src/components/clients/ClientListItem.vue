@@ -22,7 +22,7 @@
           >Edit</a
         >
         <ClientListItemDelete :client="item" /><br />
-        <a href="javascript:void(0)" class="text-blue-600 hover:text-blue-900">Regenerate Secret</a>
+        <a v-if="item.clientType === 'confidential'" href="javascript:void(0)" class="text-blue-600 hover:text-blue-900">Regenerate Secret</a>
       </template>
     </td>
   </tr>
