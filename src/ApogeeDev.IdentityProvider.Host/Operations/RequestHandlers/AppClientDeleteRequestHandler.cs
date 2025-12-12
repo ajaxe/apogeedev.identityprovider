@@ -1,4 +1,6 @@
 
+using ApogeeDev.IdentityProvider.Host.Models.Configuration;
+using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using OpenIddict.MongoDb.Models;
 
@@ -11,18 +13,17 @@ public class AppClientDeleteRequest : IRequest<AppClientDeleteResponse>
 
 public class AppClientDeleteResponse { }
 
-public class AppClientDeleteRequestHandler : IRequestHandler<AppClientDeleteRequest, AppClientDeleteResponse>
+public class AppClientDeleteRequestHandler(OperationContext opContext) : IRequestHandler<AppClientDeleteRequest, AppClientDeleteResponse>
 {
-    private readonly OperationContext opContext;
-
-    public AppClientDeleteRequestHandler(OperationContext opContext)
-    {
-        this.opContext = opContext;
-    }
-
     public async Task<AppClientDeleteResponse> Handle(AppClientDeleteRequest request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
+
+        ArgumentException.ThrowIfNullOrWhiteSpace(request.ClientId);
+
+        opContext.AppClientOptions.ThrowIfStaticClient(request.ClientId);
+
         var collection = await opContext.GetApplicationsCollectionAsync(cancellationToken);
 
         var builder = Builders<OpenIddictMongoDbApplication>.Filter;

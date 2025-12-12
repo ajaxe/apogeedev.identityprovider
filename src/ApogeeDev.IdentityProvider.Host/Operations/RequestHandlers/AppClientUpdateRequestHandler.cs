@@ -1,32 +1,28 @@
+using ApogeeDev.IdentityProvider.Host.Models.Configuration;
+using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using OpenIddict.MongoDb.Models;
 
 namespace ApogeeDev.IdentityProvider.Host.Operations.RequestHandlers;
 
-public class AppClientUpdateRequestHandler : IRequestHandler<AppClientUpdateRequest, AppClientUpdateResponse>
+public class AppClientUpdateRequestHandler(OperationContext opContext)
+    : IRequestHandler<AppClientUpdateRequest, AppClientUpdateResponse>
 {
-    private readonly OperationContext opContext;
-
-    public AppClientUpdateRequestHandler(OperationContext opContext)
-    {
-        this.opContext = opContext;
-    }
-
     public async Task<AppClientUpdateResponse> Handle(AppClientUpdateRequest request,
         CancellationToken cancellationToken)
     {
-        if(request.Data == null)
-        {
-            throw new ArgumentNullException(nameof(request.Data));
-        }
-        if(string.IsNullOrWhiteSpace(request.ClientId))
-        {
-            throw new ArgumentNullException(nameof(request.ClientId));
-        }
-        if(request.ClientId != request.Data.ClientId)
+        ArgumentNullException.ThrowIfNull(request);
+
+        ArgumentNullException.ThrowIfNull(request.Data);
+
+        ArgumentException.ThrowIfNullOrWhiteSpace(request.ClientId);
+
+        if (request.ClientId != request.Data.ClientId)
         {
             throw new ArgumentException("ClientId in URL and body do not match");
         }
+
+        opContext.AppClientOptions.ThrowIfStaticClient(request.ClientId);
 
         var collection = await opContext.GetApplicationsCollectionAsync(cancellationToken);
 

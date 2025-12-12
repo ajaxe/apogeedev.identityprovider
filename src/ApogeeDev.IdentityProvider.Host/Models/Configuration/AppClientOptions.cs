@@ -7,7 +7,15 @@ public class AppClientOptions
 {
     public const string SectionName = nameof(AppClientOptions);
 
-    public List<AppClient> Clients { get; } = new List<AppClient>();
+    public List<AppClient> Clients { get; } = [];
+
+    public void ThrowIfStaticClient(string clientId)
+    {
+        if (Clients.Any(c => c.ClientId == clientId))
+        {
+            throw new InvalidOperationException($"Static client Id '{clientId}' cannot be deleted");
+        }
+    }
 }
 
 public class AppClient

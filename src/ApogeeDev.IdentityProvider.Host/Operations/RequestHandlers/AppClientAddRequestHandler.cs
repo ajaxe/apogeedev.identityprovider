@@ -4,19 +4,16 @@ using OpenIddict.MongoDb.Models;
 
 namespace ApogeeDev.IdentityProvider.Host.Operations.RequestHandlers;
 
-public class AppClientAddRequestHandler : IRequestHandler<AppClientAddRequest, AppClientAddResponse>
+public class AppClientAddRequestHandler(OperationContext opContext, ICryptoHelper cryptoHelper)
+    : IRequestHandler<AppClientAddRequest, AppClientAddResponse>
 {
-    private readonly OperationContext opContext;
-    private readonly ICryptoHelper cryptoHelper;
-
-    public AppClientAddRequestHandler(OperationContext opContext, ICryptoHelper cryptoHelper)
-    {
-        this.opContext = opContext;
-        this.cryptoHelper = cryptoHelper;
-    }
-
     public async Task<AppClientAddResponse> Handle(AppClientAddRequest request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(request.Data);
+
+        opContext.AppClientOptions.ThrowIfStaticClient(request.Data.ClientId);
+
         var collection = await opContext.GetApplicationsCollectionAsync(cancellationToken);
 
         var builder = Builders<OpenIddictMongoDbApplication>.Filter;
@@ -25,10 +22,10 @@ public class AppClientAddRequestHandler : IRequestHandler<AppClientAddRequest, A
             builder.Or(
                 builder.Eq(doc => doc.ClientId, request.Data.ClientId),
                 builder.Eq(doc => doc.DisplayName, request.Data.DisplayName)
-            )
+            ), null, cancellationToken
         );
 
-        if (await existing.AnyAsync())
+        if (await existing.AnyAsync(cancellationToken))
         {
             return new AppClientAddResponse
             {

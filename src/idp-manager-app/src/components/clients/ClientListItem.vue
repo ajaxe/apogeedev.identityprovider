@@ -17,11 +17,13 @@
       </span>
     </td>
     <td class="px-6 py-2 whitespace-nowrap text-right text-sm font-medium">
-      <a href="javascript:void(0)" @click="navigateEdit" class="text-blue-600 hover:text-blue-900"
-        >Edit</a
-      >
-      <ClientListItemDelete :client="item" /><br />
-      <a href="javascript:void(0)" class="text-blue-600 hover:text-blue-900">Regenerate Secret</a>
+      <template v-if="item.canEdit">
+        <a href="javascript:void(0)" @click="navigateEdit" class="text-blue-600 hover:text-blue-900"
+          >Edit</a
+        >
+        <ClientListItemDelete :client="item" /><br />
+        <a href="javascript:void(0)" class="text-blue-600 hover:text-blue-900">Regenerate Secret</a>
+      </template>
     </td>
   </tr>
 </template>
