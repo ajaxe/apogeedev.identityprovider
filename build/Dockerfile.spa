@@ -22,6 +22,9 @@ COPY --from=builder /app/src/idp-manager-app/dist /usr/share/nginx/html
 
 COPY build/entrypoint.spa.sh /entrypoint.sh
 
+# Fix line endings (strip CR) just in case
+RUN sed -i 's/\r$//' /entrypoint.sh
+
 # Make it executable (crucial!)
 RUN chmod +x /entrypoint.sh
 

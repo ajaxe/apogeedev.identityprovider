@@ -25,7 +25,7 @@ public class Startup
 {
     public const string EnvVarPrefix = "APP_";
     private const string DevAllowCors = "devAllowOrigins";
-    private string AppPathPrefix => System.Environment.GetEnvironmentVariable($"{EnvVarPrefix}AppPathPrefix")
+    private static string AppPathPrefix => System.Environment.GetEnvironmentVariable($"{EnvVarPrefix}AppPathPrefix")
         ?? string.Empty;
 
     public Startup(ConfigurationManager configuration, IWebHostEnvironment environment)
@@ -75,7 +75,7 @@ public class Startup
             options.ForwardedHeaders =
                 ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
             options.RequireHeaderSymmetry = false;
-            options.KnownNetworks.Clear();
+            options.KnownIPNetworks.Clear();
             options.KnownProxies.Clear();
         });
 
@@ -99,7 +99,7 @@ public class Startup
             options.ForwardedHeaders =
                 ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
             options.RequireHeaderSymmetry = false;
-            options.KnownNetworks.Clear();
+            options.KnownIPNetworks.Clear();
             options.KnownProxies.Clear();
         });
 
@@ -153,10 +153,10 @@ public class Startup
             resource.AddService(serviceName: appName);
             var globalOpenTelemetryAttributes = new List<KeyValuePair<string, object>>
             {
-                new KeyValuePair<string, object>("env", Environment.EnvironmentName),
-                new KeyValuePair<string, object>("service.name", appName),
-                new KeyValuePair<string, object>("service.version", "1.0.0"),
-                new KeyValuePair<string, object>("service.instanceId", System.Environment.MachineName),
+                new("env", Environment.EnvironmentName),
+                new("service.name", appName),
+                new("service.version", "1.0.0"),
+                new("service.instanceId", System.Environment.MachineName),
             };
             resource.AddAttributes(globalOpenTelemetryAttributes);
         })
@@ -254,14 +254,17 @@ public class Startup
             OpenIddictConstants.Scopes.Phone,
             OpenIddictConstants.Scopes.Roles);
 
+        var encryptionCert = X509CertificateLoader.LoadPkcs12(File.ReadAllBytes(Configuration["AppOptions:EncryptionCert"]!), null);
+        var signingCert = X509CertificateLoader.LoadPkcs12(File.ReadAllBytes(Configuration["AppOptions:SigningCert"]!), null);
+
         o.SetAuthorizationEndpointUris($"{AppPathPrefix}/connect/authorize")
             .SetTokenEndpointUris($"{AppPathPrefix}/connect/token")
             .SetEndSessionEndpointUris($"{AppPathPrefix}/connect/logout")
             .SetUserInfoEndpointUris($"{AppPathPrefix}/connect/userinfo")
             .AllowAuthorizationCodeFlow()
             .RequireProofKeyForCodeExchange()
-            .AddEncryptionCertificate(X509CertificateLoader.LoadCertificate(File.ReadAllBytes(Configuration["AppOptions:EncryptionCert"]!)))
-            .AddSigningCertificate(X509CertificateLoader.LoadCertificate(File.ReadAllBytes(Configuration["AppOptions:SigningCert"]!)))
+            .AddEncryptionCertificate(encryptionCert)
+            .AddSigningCertificate(signingCert)
             .UseAspNetCore()
             .EnableAuthorizationEndpointPassthrough()
             .EnableEndSessionEndpointPassthrough()
