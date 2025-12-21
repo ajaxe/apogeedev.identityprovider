@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using ApogeeDev.IdentityProvider.Host.Models.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
@@ -56,7 +57,7 @@ public class CreateExternalSignInPrincipalHandler
             case Claims.Name or Claims.PreferredUsername:
                 yield return Destinations.AccessToken;
 
-                if (claim.Subject.HasScope(Scopes.Profile))
+                if (claim.Subject?.HasScope(Scopes.Profile) == true)
                     yield return Destinations.IdentityToken;
 
                 yield break;
@@ -64,7 +65,7 @@ public class CreateExternalSignInPrincipalHandler
             case Claims.Email:
                 yield return Destinations.AccessToken;
 
-                if (claim.Subject.HasScope(Scopes.Email))
+                if (claim.Subject?.HasScope(Scopes.Email) == true)
                     yield return Destinations.IdentityToken;
 
                 yield break;
@@ -72,13 +73,18 @@ public class CreateExternalSignInPrincipalHandler
             case Claims.Role:
                 yield return Destinations.AccessToken;
 
-                if (claim.Subject.HasScope(Scopes.Roles))
+                if (claim.Subject?.HasScope(Scopes.Roles) == true)
                     yield return Destinations.IdentityToken;
 
                 yield break;
 
             // Never include the security stamp in the access and identity tokens, as it's a secret value.
             case "AspNet.Identity.SecurityStamp": yield break;
+
+            case CustomClaimTypes.IdpServer.IdP:
+                yield return Destinations.AccessToken;
+                yield return Destinations.IdentityToken;
+                yield break;
 
             default:
                 yield return Destinations.AccessToken;

@@ -2,3 +2,4 @@
 src/**/[bB]in/*
 src/**/[oO]bj/*
 ./**/secret*
+node_modules

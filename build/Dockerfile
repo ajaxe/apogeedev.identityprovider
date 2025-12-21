@@ -10,10 +10,10 @@ WORKDIR /home/app/
 
 COPY ./src/ApogeeDev.IdentityProvider.Host/ApogeeDev.IdentityProvider.Host.csproj  .
 
-RUN dotnet restore ./ApogeeDev.IdentityProvider.Host.csproj
+RUN dotnet restore ./ApogeeDev.IdentityProvider.Host.csproj -r linux-musl-x64
 
 COPY ./src/ApogeeDev.IdentityProvider.Host/ .
-RUN dotnet publish -c Release -r linux-musl-x64 -o published --no-self-contained
+RUN dotnet publish -c Release -r linux-musl-x64 -o published --no-self-contained --no-restore
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine
 

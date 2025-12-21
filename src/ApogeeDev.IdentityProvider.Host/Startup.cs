@@ -94,15 +94,6 @@ public class Startup
         }
 #endif
 
-        services.Configure<ForwardedHeadersOptions>(options =>
-        {
-            options.ForwardedHeaders =
-                ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-            options.RequireHeaderSymmetry = false;
-            options.KnownIPNetworks.Clear();
-            options.KnownProxies.Clear();
-        });
-
         services.AddHealthChecks()
             .AddCheck<DbConnectionHealthCheck>("dbcheck");
 
