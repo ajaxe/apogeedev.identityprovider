@@ -20,6 +20,7 @@ public class AppClientOptions
 
 public class AppClient
 {
+    public static readonly string OfflineAccessScope = Permissions.Prefixes.Scope + Scopes.OfflineAccess;
     public string ApplicationType { get; set; } = default!; // "native" or "web"
     public string ClientId { get; set; } = default!;
     public string ClientSecret { get; set; } = default!;
@@ -31,9 +32,13 @@ public class AppClient
     public IEnumerable<Uri> GetRedirectUris() => RedirectUris.Select(uri => new Uri(uri));
     public IEnumerable<Uri> GetPostLogoutRedirectUris() => PostLogoutRedirectUris.Select(uri => new Uri(uri));
 
-    public IEnumerable<string> GetPermissions()
+    public static IEnumerable<string> GetPermissionsWithOfflineAccess()
     {
-        // make this configurable per client
+        return [.. DefaultPermissions(), OfflineAccessScope, Permissions.GrantTypes.RefreshToken];
+    }
+
+    public static IEnumerable<string> DefaultPermissions()
+    {
         yield return Permissions.Endpoints.Authorization;
         yield return Permissions.Endpoints.Token;
         yield return Permissions.Endpoints.EndSession;
@@ -44,9 +49,8 @@ public class AppClient
         yield return Permissions.Scopes.Phone;
         yield return Permissions.Scopes.Profile;
         yield return Permissions.Scopes.Roles;
-        yield return Permissions.Prefixes.Scope + Scopes.OfflineAccess;
-        yield return Permissions.GrantTypes.RefreshToken;
     }
+
 
     private IEnumerable<object> GetMembers()
     {

@@ -26,6 +26,13 @@ public class AppClientUpdateRequestHandler(OperationContext opContext)
 
         var collection = await opContext.GetApplicationsCollectionAsync(cancellationToken);
 
+        var permissions = AppClient.DefaultPermissions();
+
+        if (request.Data.AllowOfflineAccess)
+        {
+            permissions = AppClient.GetPermissionsWithOfflineAccess();
+        }
+
         var result = await collection.UpdateOneAsync(
             Builders<OpenIddictMongoDbApplication>.Filter.Eq(doc => doc.ClientId, request.Data.ClientId),
             Builders<OpenIddictMongoDbApplication>.Update
@@ -33,8 +40,9 @@ public class AppClientUpdateRequestHandler(OperationContext opContext)
                 .Set(doc => doc.ApplicationType, request.Data.ApplicationType)
                 .Set(doc => doc.ClientType, request.Data.ClientType)
                 .Set(doc => doc.RedirectUris, request.Data.RedirectUris)
-                .Set(doc => doc.PostLogoutRedirectUris, request.Data.PostLogoutRedirectUris),
-            null,
+                .Set(doc => doc.PostLogoutRedirectUris, request.Data.PostLogoutRedirectUris)
+                .Set(doc => doc.Permissions, permissions),
+            null, // UpdateOptions
             cancellationToken);
 
         return new AppClientUpdateResponse();

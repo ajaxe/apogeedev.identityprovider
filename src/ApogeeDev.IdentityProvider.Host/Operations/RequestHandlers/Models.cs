@@ -11,6 +11,7 @@ public class AppClientData : IValidatableObject
     public string[] RedirectUris { get; set; } = default!;
     public string[] PostLogoutRedirectUris { get; set; } = default!;
     public bool CanEdit { get; set; } = true;
+    public bool AllowOfflineAccess { get; set; } = false;
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {

@@ -6,6 +6,7 @@ export interface ClientListItem {
   redirectUris: string[];
   postLogoutRedirectUris: string[];
   canEdit: boolean;
+  allowOfflineAccess: boolean;
 }
 
 export type AppClientDataWithSecret = ClientListItem & { clientSecret: string };

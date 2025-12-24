@@ -96,6 +96,20 @@
         </div>
       </div>
 
+      <!-- Row 5: Allow Offline Access -->
+      <div class="mb-4">
+        <label for="allow-offline-access" class="form-label text-light">Allow Offline Access</label>
+        <input
+          type="checkbox"
+          id="allow-offline-access"
+          v-model="model.allowOfflineAccess"
+          class="form-check-input ms-3"
+        />
+        <div class="text-danger-emphasis small mt-1" v-if="errors?.AllowOfflineAccess">
+          {{ errors?.AllowOfflineAccess[0] }}
+        </div>
+      </div>
+
       <!-- Footer Actions -->
       <div class="d-flex justify-content-end gap-2 mt-5">
         <button

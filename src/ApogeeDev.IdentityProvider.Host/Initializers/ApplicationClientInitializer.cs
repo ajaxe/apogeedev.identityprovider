@@ -93,7 +93,7 @@ public class ApplicationClientInitializer : BackgroundService
         };
 
         descriptor.RedirectUris.UnionWith(appClient.GetRedirectUris());
-        descriptor.Permissions.UnionWith(appClient.GetPermissions());
+        descriptor.Permissions.UnionWith(AppClient.GetPermissionsWithOfflineAccess());
         descriptor.PostLogoutRedirectUris.UnionWith(appClient.GetPostLogoutRedirectUris());
 
         return descriptor;

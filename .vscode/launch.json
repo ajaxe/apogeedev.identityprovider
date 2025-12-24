@@ -10,7 +10,7 @@
       "request": "launch",
       "preLaunchTask": "build",
       "launchSettingsProfile": "https",
-      "program": "${workspaceFolder}/src/ApogeeDev.IdentityProvider.Host/bin/Debug/net8.0/ApogeeDev.IdentityProvider.Host.dll",
+      "program": "${workspaceFolder}/src/ApogeeDev.IdentityProvider.Host/bin/Debug/net10.0/ApogeeDev.IdentityProvider.Host.dll",
       "args": [],
       "cwd": "${workspaceFolder}/src/ApogeeDev.IdentityProvider.Host",
       "stopAtEntry": false,

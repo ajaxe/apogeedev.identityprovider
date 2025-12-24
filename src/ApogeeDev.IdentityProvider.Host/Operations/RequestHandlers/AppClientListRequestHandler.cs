@@ -36,6 +36,7 @@ public class AppClientListRequestHandler(OperationContext opContext,
                 ClientType = app.ClientType ?? string.Empty,
                 RedirectUris = app.RedirectUris == null ? new string[0] : app.RedirectUris.ToArray(),
                 PostLogoutRedirectUris = app.PostLogoutRedirectUris == null ? new string[0] : app.PostLogoutRedirectUris.ToArray(),
+                AllowOfflineAccess = app.Permissions != null && app.Permissions.Contains(AppClient.OfflineAccessScope),
             })
             .ToListAsync(cancellationToken);
 
