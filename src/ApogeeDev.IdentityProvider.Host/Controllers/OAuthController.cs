@@ -112,7 +112,15 @@ public class OAuthController : Controller
 
             // Set the appropriate scopes
             var claimsPrincipal = principal!.Clone();
-            claimsPrincipal.SetScopes(request.GetScopes());
+            var scopes = request.GetScopes();
+            if (scopes.Length == 0)
+            {
+                claimsPrincipal.SetScopes(principal.GetScopes());
+            }
+            else
+            {
+                claimsPrincipal.SetScopes(scopes.Intersect(principal.GetScopes()));
+            }
 
             return SignIn(claimsPrincipal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
         }

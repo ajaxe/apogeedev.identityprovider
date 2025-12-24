@@ -243,7 +243,8 @@ public class Startup
             OpenIddictConstants.Scopes.Profile,
             OpenIddictConstants.Scopes.Email,
             OpenIddictConstants.Scopes.Phone,
-            OpenIddictConstants.Scopes.Roles);
+            OpenIddictConstants.Scopes.Roles,
+            OpenIddictConstants.Scopes.OfflineAccess);
 
         var encryptionCert = X509CertificateLoader.LoadPkcs12(File.ReadAllBytes(Configuration["AppOptions:EncryptionCert"]!), null);
         var signingCert = X509CertificateLoader.LoadPkcs12(File.ReadAllBytes(Configuration["AppOptions:SigningCert"]!), null);
@@ -253,15 +254,16 @@ public class Startup
             .SetEndSessionEndpointUris($"{AppPathPrefix}/connect/logout")
             .SetUserInfoEndpointUris($"{AppPathPrefix}/connect/userinfo")
             .AllowAuthorizationCodeFlow()
+            .AllowRefreshTokenFlow()
             .RequireProofKeyForCodeExchange()
             .AddEncryptionCertificate(encryptionCert)
             .AddSigningCertificate(signingCert)
             .UseAspNetCore()
             .EnableAuthorizationEndpointPassthrough()
             .EnableEndSessionEndpointPassthrough()
-            //.EnableTokenEndpointPassthrough()
+            .EnableTokenEndpointPassthrough()
             .EnableUserInfoEndpointPassthrough()
-            .DisableTransportSecurityRequirement(); ;
+            .DisableTransportSecurityRequirement();
     }
 
     private void ConfigureOpenIdDictClient(OpenIddictClientBuilder options)
