@@ -44,6 +44,8 @@ public class AppClient
         yield return Permissions.Scopes.Phone;
         yield return Permissions.Scopes.Profile;
         yield return Permissions.Scopes.Roles;
+        yield return Permissions.Prefixes.Scope + Scopes.OfflineAccess;
+        yield return Permissions.GrantTypes.RefreshToken;
     }
 
     private IEnumerable<object> GetMembers()
