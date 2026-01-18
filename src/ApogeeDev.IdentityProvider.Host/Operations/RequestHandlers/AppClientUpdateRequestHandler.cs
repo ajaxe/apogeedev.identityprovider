@@ -1,7 +1,7 @@
 using ApogeeDev.IdentityProvider.Host.Models.Configuration;
-using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using OpenIddict.MongoDb.Models;
+using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace ApogeeDev.IdentityProvider.Host.Operations.RequestHandlers;
 
@@ -33,6 +33,12 @@ public class AppClientUpdateRequestHandler(OperationContext opContext)
             permissions = AppClient.GetPermissionsWithOfflineAccess();
         }
 
+        var requirements = new List<string>();
+        if (request.Data.EnablePkce)
+        {
+            requirements.Add(Requirements.Features.ProofKeyForCodeExchange);
+        }
+
         var result = await collection.UpdateOneAsync(
             Builders<OpenIddictMongoDbApplication>.Filter.Eq(doc => doc.ClientId, request.Data.ClientId),
             Builders<OpenIddictMongoDbApplication>.Update
@@ -41,7 +47,8 @@ public class AppClientUpdateRequestHandler(OperationContext opContext)
                 .Set(doc => doc.ClientType, request.Data.ClientType)
                 .Set(doc => doc.RedirectUris, request.Data.RedirectUris)
                 .Set(doc => doc.PostLogoutRedirectUris, request.Data.PostLogoutRedirectUris)
-                .Set(doc => doc.Permissions, permissions),
+                .Set(doc => doc.Permissions, permissions)
+                .Set(doc => doc.Requirements, requirements),
             null, // UpdateOptions
             cancellationToken);
 

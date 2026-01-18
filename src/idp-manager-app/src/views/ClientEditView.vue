@@ -1,5 +1,5 @@
 <template>
-  <ClientEdit v-model="model" @cancel="gotoList" @submit="save" is-edit />
+  <ClientEdit v-model="model" @cancel="gotoList" @submit="save" is-edit :errors="errors" />
 </template>
 <script setup>
 import ClientEdit from '@/components/clients/ClientEdit.vue'
@@ -16,6 +16,7 @@ const { notifySuccess, notifyError } = useNotification()
 const router = useRouter()
 const store = useClientStore()
 const model = ref(store.emptyClient)
+const errors = ref({})
 
 onMounted(() => void load())
 
@@ -25,8 +26,10 @@ const gotoList = () => router.push({ name: 'clients' })
 
 const save = async () => {
   try {
+    errors.value = {}
     const result = await store.update(model.value)
     if (result?.errors) {
+      errors.value = result.errors
       notifyError('Failed to update client.')
       return
     }

@@ -255,7 +255,7 @@ public class Startup
             .SetUserInfoEndpointUris($"{AppPathPrefix}/connect/userinfo")
             .AllowAuthorizationCodeFlow()
             .AllowRefreshTokenFlow()
-            .RequireProofKeyForCodeExchange()
+            // .RequireProofKeyForCodeExchange() // Enable PKCE per client configuration
             .AddEncryptionCertificate(encryptionCert)
             .AddSigningCertificate(signingCert)
             .UseAspNetCore()

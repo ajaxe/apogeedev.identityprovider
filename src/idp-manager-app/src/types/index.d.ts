@@ -1,22 +1,24 @@
 export interface ClientListItem {
-  displayName: string;
-  clientId: string;
-  applicationType: string;
-  clientType: string;
-  redirectUris: string[];
-  postLogoutRedirectUris: string[];
-  canEdit: boolean;
-  allowOfflineAccess: boolean;
+  displayName: string
+  clientId: string
+  applicationType: string
+  clientType: string
+  redirectUris: string[]
+  postLogoutRedirectUris: string[]
+  canEdit: boolean
+  allowOfflineAccess: boolean
+  enablePkce: boolean
+  errors?: ErrorResponseProps
 }
 
-export type AppClientDataWithSecret = ClientListItem & { clientSecret: string };
+export type AppClientDataWithSecret = ClientListItem & { clientSecret: string }
 
-export type ErrorResponseProps = Record<string, string[]>;
+export type ErrorResponseProps = Record<string, string[]>
 
 export interface ErrorsResponse {
-  errors: ErrorResponseProps;
+  errors: ErrorResponseProps
 }
 
-export interface AppClientDataWithSecretResponse extends ErrorsResponse{
-  appClientData?: AppClientDataWithSecret;
+export interface AppClientDataWithSecretResponse extends ErrorsResponse {
+  appClientData?: AppClientDataWithSecret
 }

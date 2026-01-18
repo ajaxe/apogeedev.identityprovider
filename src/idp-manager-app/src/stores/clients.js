@@ -19,6 +19,8 @@ export const useClientStore = defineStore('clients', {
       clientType: '',
       redirectUris: [],
       postLogoutRedirectUris: [],
+      allowOfflineAccess: false,
+      enablePkce: true,
     }),
 
     filteredClients: (state) =>

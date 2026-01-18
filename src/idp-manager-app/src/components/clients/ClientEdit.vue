@@ -110,6 +110,20 @@
         </div>
       </div>
 
+      <!-- Row 6: Enable PKCE -->
+      <div class="mb-4">
+        <label for="enable-pkce" class="form-label text-light">Enable PKCE</label>
+        <input
+          type="checkbox"
+          id="enable-pkce"
+          v-model="model.enablePkce"
+          class="form-check-input ms-3"
+        />
+        <div class="text-danger-emphasis small mt-1" v-if="errors?.EnablePkce">
+          {{ errors?.EnablePkce[0] }}
+        </div>
+      </div>
+
       <!-- Footer Actions -->
       <div class="d-flex justify-content-end gap-2 mt-5">
         <button
