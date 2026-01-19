@@ -1,6 +1,7 @@
 using ApogeeDev.IdentityProvider.Host.Models.Configuration;
 using Microsoft.AspNetCore.WebUtilities;
 using MongoDB.Driver;
+using OpenIddict.Abstractions;
 using OpenIddict.MongoDb.Models;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
@@ -53,20 +54,21 @@ public class AppClientAddRequestHandler(OperationContext opContext, ICryptoHelpe
             permissions = AppClient.GetPermissionsWithOfflineAccess();
         }
 
-        var data = new OpenIddictMongoDbApplication
+        var descriptor = new OpenIddictApplicationDescriptor
         {
             ClientId = request.Data.ClientId,
             ClientSecret = clientSecret,
             DisplayName = request.Data.DisplayName,
+            ClientType = request.Data.ClientType, // confidential/public
             ApplicationType = request.Data.ApplicationType,
-            ClientType = request.Data.ClientType,
-            RedirectUris = request.Data.RedirectUris,
-            PostLogoutRedirectUris = request.Data.PostLogoutRedirectUris,
-            Permissions = [.. permissions],
-            Requirements = [.. requirements],
         };
 
-        await collection.InsertOneAsync(data, options: null, cancellationToken);
+        descriptor.RedirectUris.UnionWith(request.Data.RedirectUris.Select(s => new Uri(s)));
+        descriptor.PostLogoutRedirectUris.UnionWith(request.Data.PostLogoutRedirectUris.Select(s => new Uri(s)));
+        descriptor.Permissions.UnionWith(permissions);
+        descriptor.Requirements.UnionWith(requirements);
+
+        await opContext.ApplicationManager.CreateAsync(descriptor, cancellationToken);
 
         return new AppClientAddResponse
         {

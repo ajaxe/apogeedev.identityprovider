@@ -21,15 +21,7 @@ const store = useClientStore()
 const { notifyError, notifySuccess } = useNotification()
 const showSuccessModal = ref(false)
 
-const model = ref({
-  displayName: '',
-  clientId: '',
-  clientSecret: '',
-  applicationType: '',
-  clientType: '',
-  redirectUris: [],
-  postLogoutRedirectUris: [],
-})
+const model = ref(store.emptyClient)
 
 const newClientId = ref('')
 const newClientName = ref('')

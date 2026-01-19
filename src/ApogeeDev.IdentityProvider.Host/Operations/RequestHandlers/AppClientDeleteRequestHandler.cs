@@ -1,6 +1,3 @@
-
-using ApogeeDev.IdentityProvider.Host.Models.Configuration;
-using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using OpenIddict.MongoDb.Models;
 
@@ -13,7 +10,7 @@ public class AppClientDeleteRequest : IRequest<AppClientDeleteResponse>
 
 public class AppClientDeleteResponse { }
 
-public class AppClientDeleteRequestHandler(OperationContext opContext) : IRequestHandler<AppClientDeleteRequest, AppClientDeleteResponse>
+public class AppClientDeleteRequestHandler(OperationContext opContext, ILogger<AppClientDeleteRequestHandler> logger) : IRequestHandler<AppClientDeleteRequest, AppClientDeleteResponse>
 {
     public async Task<AppClientDeleteResponse> Handle(AppClientDeleteRequest request,
         CancellationToken cancellationToken)
@@ -24,15 +21,16 @@ public class AppClientDeleteRequestHandler(OperationContext opContext) : IReques
 
         opContext.AppClientOptions.ThrowIfStaticClient(request.ClientId);
 
-        var collection = await opContext.GetApplicationsCollectionAsync(cancellationToken);
+        var existing = await opContext.ApplicationManager.FindByClientIdAsync(request.ClientId, cancellationToken);
 
-        var builder = Builders<OpenIddictMongoDbApplication>.Filter;
+        if (existing is null)
+        {
+            if (logger.IsEnabled(LogLevel.Information)) logger.LogInformation("Application not found, {ClientId}", request.ClientId);
 
-        var result = await collection.DeleteOneAsync(
-            builder.Eq(doc => doc.ClientId, request.ClientId),
-            options: null,
-            cancellationToken
-        );
+            return new AppClientDeleteResponse();
+        }
+
+        await opContext.ApplicationManager.DeleteAsync(existing, cancellationToken);
 
         return new AppClientDeleteResponse();
     }
