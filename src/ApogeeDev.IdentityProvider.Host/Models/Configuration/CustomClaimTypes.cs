@@ -19,7 +19,7 @@ public static class CustomClaimTypes
     public static class Common
     {
         public const string IdentityProvider = "http://schemas.microsoft.com/accesscontrolservice/2010/07/claims/identityprovider";
-        public const string AppManager = "AppManager";
+        public const string AppManager = "private:idp:app_manager";
     }
     public static class Google
     {

@@ -15,6 +15,12 @@ public class AppUserClaim
     public string ClaimType { get; set; } = default!;
     [BsonElement("claim_value")]
     public string ClaimValue { get; set; } = default!;
+    [BsonElement("value_type")]
+    public string? ValueType { get; set; } = default!;
+    [BsonElement("issuer")]
+    public string? Issuer { get; set; } = default!;
+    [BsonElement("original_issuer")]
+    public string? OriginalIssuer { get; set; } = default!;
 }
 
 public class AppUserClaimExistsEqualityComparer : GenericEqualityComparer<AppUserClaim>

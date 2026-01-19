@@ -21,7 +21,8 @@ public class AppManagerClaimsTranformation : IClaimsTransformation
 
         var email = principal.GetClaim(OpenIddictConstants.Claims.Email);
 
-        if (appOptions.AppManagerEmails.Contains(email, StringComparer.OrdinalIgnoreCase))
+        if (appOptions.AppManagerEmails.Contains(email, StringComparer.OrdinalIgnoreCase) &&
+            !principal.HasClaim(c => c.Type == CustomClaimTypes.Common.AppManager))
         {
             claimsIdentity.AddClaim(new Claim(CustomClaimTypes.Common.AppManager, "1"));
         }

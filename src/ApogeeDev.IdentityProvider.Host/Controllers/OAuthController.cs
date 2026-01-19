@@ -8,9 +8,11 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Razor.Language.Intermediate;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
+using ZstdSharp.Unsafe;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 using static OpenIddict.Client.WebIntegration.OpenIddictClientWebIntegrationConstants;
 
@@ -25,14 +27,16 @@ public class OAuthController : Controller
     public async Task<IActionResult> OAuthAuthorize([FromQuery(Name = "client_id")] string clientId,
         [FromServices] IMediator mediator)
     {
-        // Resolve the claims stored in the cookie created after the GitHub authentication dance.
-        // If the principal cannot be found, trigger a new challenge to redirect the user to GitHub.
-        //
-        // For scenarios where the default authentication handler configured in the ASP.NET Core
-        // authentication options shouldn't be used, a specific scheme can be specified here.
-        var principal = (await HttpContext.AuthenticateAsync())?.Principal;
+        var request = HttpContext.GetOpenIddictServerRequest() ??
+            throw new InvalidOperationException("The OpenID Connect request cannot be retrieved.");
 
-        if (principal is null)
+        var result = await HttpContext.AuthenticateAsync();
+
+        if (result is not { Succeeded: true } ||
+            request.HasPromptValue(OpenIddictConstants.PromptValues.Login) ||
+            request.MaxAge is 0 ||
+            (request.MaxAge is not null && result.Properties?.IssuedUtc is not null &&
+            DateTimeOffset.UtcNow - result.Properties.IssuedUtc >= TimeSpan.FromSeconds(request.MaxAge.Value)))
         {
             LoginViewModel vm = await mediator.Send(new LoginViewRequest
             {
@@ -43,12 +47,16 @@ public class OAuthController : Controller
             return View("Login", vm);
         }
 
+        var principal = result.Principal!;
+
         var signInResult = await mediator.Send(new CreateExternalSignInPrincipalRequest
         {
             IdentityProviderName = principal.Identity?.AuthenticationType
                 ?? throw new InvalidOperationException("Invalid 'AuthenticationType' in principal"),
             IncomingExternalPrincipal = principal,
         });
+
+        signInResult.Principal.SetScopes(request.GetScopes());
 
         return SignIn(signInResult.Principal,
             properties: signInResult.Properties!,
@@ -137,10 +145,10 @@ public class OAuthController : Controller
         var subject = User.GetClaim(Claims.Subject);
         var idp = User.GetClaim(CustomClaimTypes.IdpServer.IdP);
 
-        var found = await dbContext.AppUsers
-            .CountAsync(u => u.Subject == subject && u.IdentityProvider == idp);
+        var user = await dbContext.AppUsers
+            .FirstOrDefaultAsync(u => u.Subject == subject && u.IdentityProvider == idp);
 
-        if (found <= 0)
+        if (user == null)
         {
             return Challenge(
                 authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
@@ -152,22 +160,31 @@ public class OAuthController : Controller
                 }));
         }
 
-        var user = await dbContext.AppUsers
-            .FirstAsync(u => u.Subject == subject && u.IdentityProvider == idp);
+        var userClaims = await dbContext.AppUserClaims
+            .Where(u => u.AppUserId == user.Id)
+            .ToListAsync();
 
-        var claims = new Dictionary<string, object?>(StringComparer.Ordinal)
+        // featch all claims from external IdP
+        var claims = userClaims.ToDictionary(c => c.ClaimType, c => (object?)c.ClaimValue);
+
+        // change data type of "email_verified" to bool
+        if (claims.ContainsKey(Claims.EmailVerified))
         {
-            // Note: the "sub" claim is a mandatory claim and must be included in the JSON response.
-            [ClaimTypes.NameIdentifier] = user.Subject,
-            [Claims.Subject] = user.Subject,
-            [Claims.Username] = user.UserName,
-            [ClaimTypes.Name] = user.Name,
-            [Claims.Name] = user.Name,
-            [Claims.Email] = user.Email,
-            [ClaimTypes.Email] = user.Email,
-            [Claims.Picture] = user.ProfilePicture,
-            [CustomClaimTypes.IdpServer.IdP] = user.IdentityProvider,
-        };
+            if (bool.TryParse(claims[Claims.EmailVerified]?.ToString(), out var verified))
+            {
+                claims[Claims.EmailVerified] = verified;
+            }
+        }
+
+        claims.TryAdd(ClaimTypes.NameIdentifier, user.Subject);
+        claims.TryAdd(Claims.Subject, user.Subject);
+        claims.TryAdd(Claims.Username, user.UserName);
+        claims.TryAdd(ClaimTypes.Name, user.Name);
+        claims.TryAdd(Claims.Name, user.Name);
+        claims.TryAdd(Claims.Email, user.Email);
+        claims.TryAdd(ClaimTypes.Email, user.Email);
+        claims.TryAdd(Claims.Picture, user.ProfilePicture);
+        claims.TryAdd(CustomClaimTypes.IdpServer.IdP, user.IdentityProvider);
 
         // Note: the complete list of standard claims supported by the OpenID Connect specification
         // can be found here: http://openid.net/specs/openid-connect-core-1_0.html#StandardClaims

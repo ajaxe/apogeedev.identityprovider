@@ -82,6 +82,9 @@ public abstract class ClaimsProcessorBase : IClaimsProcessor
                 AppUserId = user.Id,
                 ClaimType = c.Type,
                 ClaimValue = c.Value,
+                ValueType = c.ValueType,
+                Issuer = c.Issuer,
+                OriginalIssuer = c.OriginalIssuer
             }));
 
         await dbContext.SaveChangesAsync();

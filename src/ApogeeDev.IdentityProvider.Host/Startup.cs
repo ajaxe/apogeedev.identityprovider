@@ -62,6 +62,8 @@ public class Startup
 
         services.AddSerilog((s, lc) => lc.ReadFrom.Configuration(Configuration));
 
+        services.AddHttpContextAccessor();
+
         services.AddOptions();
         services.Configure<AppOptions>(
                 Configuration.GetSection(AppOptions.SectionName));
