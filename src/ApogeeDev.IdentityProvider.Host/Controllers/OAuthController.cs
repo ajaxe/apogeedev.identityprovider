@@ -33,11 +33,27 @@ public class OAuthController : Controller
         var result = await HttpContext.AuthenticateAsync();
 
         if (result is not { Succeeded: true } ||
-            request.HasPromptValue(OpenIddictConstants.PromptValues.Login) ||
+            request.HasPromptValue(PromptValues.Login) ||
             request.MaxAge is 0 ||
-            (request.MaxAge is not null && result.Properties?.IssuedUtc is not null &&
-            DateTimeOffset.UtcNow - result.Properties.IssuedUtc >= TimeSpan.FromSeconds(request.MaxAge.Value)))
+            (request.MaxAge is not null
+                && result.Properties?.IssuedUtc is not null
+                && DateTimeOffset.UtcNow - result.Properties.IssuedUtc >= TimeSpan.FromSeconds(request.MaxAge.Value)
+                && TempData["IgnoreAuthenticationChallenge"] is null or false))
         {
+            if (request.HasPromptValue(PromptValues.None))
+            {
+                return Forbid(
+                    authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+                    properties: new AuthenticationProperties(new Dictionary<string, string?>
+                    {
+                        [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.LoginRequired,
+                        [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "The user is not logged in."
+                    }));
+            }
+
+            TempData["IgnoreAuthenticationChallenge"] = true;
+
+
             LoginViewModel vm = await mediator.Send(new LoginViewRequest
             {
                 AuthorizeRedirectUrl = HttpContext.Request.GetEncodedUrl(),
