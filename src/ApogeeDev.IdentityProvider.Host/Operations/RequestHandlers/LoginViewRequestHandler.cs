@@ -23,11 +23,13 @@ public class LoginViewRequestHandler : IRequestHandler<LoginViewRequest, LoginVi
 
     public async Task<LoginViewModel> Handle(LoginViewRequest request, CancellationToken cancellationToken)
     {
-        var app = await appManager.FindByClientIdAsync(request.ClientId, cancellationToken);
+        var app = await appManager.FindByClientIdAsync(request.ClientId, cancellationToken)
+            ?? throw new InvalidOperationException($"Application not found for clientId: {request.ClientId}");
+
         // get application name & other details for the login view
         return new LoginViewModel
         {
-            AppDisplayName = await appManager.GetDisplayNameAsync(app)
+            AppDisplayName = await appManager.GetDisplayNameAsync(app, cancellationToken)
                 ?? throw new InvalidOperationException($"Invalid Display Name. clientId: {request.ClientId}'"),
             RedirectUrl = cryptoHelper.EncryptAsBase64Url(request.AuthorizeRedirectUrl),
         };

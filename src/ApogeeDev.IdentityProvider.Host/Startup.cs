@@ -1,5 +1,6 @@
 using System.Security.Cryptography.X509Certificates;
 using ApogeeDev.IdentityProvider.Host.Data;
+using ApogeeDev.IdentityProvider.Host.Helpers.Authentication;
 using ApogeeDev.IdentityProvider.Host.Initializers;
 using ApogeeDev.IdentityProvider.Host.Models.Configuration;
 using ApogeeDev.IdentityProvider.Host.Operations.Processors;
@@ -225,8 +226,8 @@ public class Startup
                .SetMinimumAuthorizationLifespan(TimeSpan.FromDays(7))
                .SetMinimumTokenLifespan(TimeSpan.FromHours(12));
         })
-        .AddClient(o => ConfigureOpenIdDictClient(o))
-        .AddServer(o => ConfigureOpenIdDictServer(o))
+        .AddClient(o => o.ConfigureOpenIdDictClient(Configuration))
+        .AddServer(o => o.ConfigureOpenIdDictServer(AppPathPrefix, Configuration))
         .AddValidation(o =>
         {
             o.UseLocalServer();
@@ -236,70 +237,6 @@ public class Startup
 
         services.AddHostedService<MongoDbPerformanceInitializer>();
         services.AddHostedService<ApplicationClientInitializer>();
-    }
-
-    private void ConfigureOpenIdDictServer(OpenIddictServerBuilder o)
-    {
-        o.RegisterScopes(
-            OpenIddictConstants.Scopes.Address,
-            OpenIddictConstants.Scopes.Profile,
-            OpenIddictConstants.Scopes.Email,
-            OpenIddictConstants.Scopes.Phone,
-            OpenIddictConstants.Scopes.Roles,
-            OpenIddictConstants.Scopes.OfflineAccess);
-
-        var encryptionCert = X509CertificateLoader.LoadPkcs12(File.ReadAllBytes(Configuration["AppOptions:EncryptionCert"]!), null);
-        var signingCert = X509CertificateLoader.LoadPkcs12(File.ReadAllBytes(Configuration["AppOptions:SigningCert"]!), null);
-
-        o.SetAuthorizationEndpointUris($"{AppPathPrefix}/connect/authorize")
-            .SetTokenEndpointUris($"{AppPathPrefix}/connect/token")
-            .SetEndSessionEndpointUris($"{AppPathPrefix}/connect/logout")
-            .SetUserInfoEndpointUris($"{AppPathPrefix}/connect/userinfo")
-            .AllowAuthorizationCodeFlow()
-            .AllowRefreshTokenFlow()
-            // .RequireProofKeyForCodeExchange() // Enable PKCE per client configuration
-            .AddEncryptionCertificate(encryptionCert)
-            .AddSigningCertificate(signingCert)
-            .UseAspNetCore()
-            .EnableAuthorizationEndpointPassthrough()
-            .EnableEndSessionEndpointPassthrough()
-            .EnableTokenEndpointPassthrough()
-            .EnableUserInfoEndpointPassthrough()
-            .DisableTransportSecurityRequirement();
-    }
-
-    private void ConfigureOpenIdDictClient(OpenIddictClientBuilder options)
-    {
-        var webProviders = new OAuthWebProviderOptions();
-        Configuration.GetSection(OAuthWebProviderOptions.SectionName)
-            .Bind(webProviders);
-
-        options.AllowAuthorizationCodeFlow()
-            .AllowRefreshTokenFlow()
-            .AddDevelopmentEncryptionCertificate()
-            .AddDevelopmentSigningCertificate()
-            .UseAspNetCore()
-            .EnableStatusCodePagesIntegration()
-            .EnableRedirectionEndpointPassthrough();
-
-        options.UseSystemNetHttp()
-            .SetProductInformation(typeof(Startup).Assembly);
-
-        options.UseWebProviders()
-            .AddGitHub(opts =>
-            {
-                opts.SetClientId(webProviders.Github.ClientId)
-                    .SetClientSecret(webProviders.Github.ClientSecret)
-                    .SetRedirectUri(webProviders.Github.RedirectUri)
-                    .AddScopes(webProviders.Github.Scopes);
-            })
-            .AddGoogle(opts =>
-            {
-                opts.SetClientId(webProviders.Google.ClientId)
-                    .SetClientSecret(webProviders.Google.ClientSecret)
-                    .SetRedirectUri(webProviders.Google.RedirectUri)
-                    .AddScopes(webProviders.Google.Scopes);
-            });
     }
 
     public void Configure(IApplicationBuilder app)

@@ -44,9 +44,8 @@ public class CryptoHelper : ICryptoHelper
         {
             aes.KeySize = KeySize * 8; // Key size in bits
             aes.GenerateIV(); // Generate a random IV
-            Rfc2898DeriveBytes key = GetKeyStretchData(salt);
 
-            aes.Key = key.GetBytes(KeySize);
+            aes.Key = GetDerivedKey(salt);
             aes.IV = aes.IV;
 
             using (var encryptor = aes.CreateEncryptor(aes.Key, aes.IV))
@@ -67,11 +66,15 @@ public class CryptoHelper : ICryptoHelper
         }
     }
 
-    private Rfc2898DeriveBytes GetKeyStretchData(byte[] salt)
+    private byte[] GetDerivedKey(byte[] salt)
     {
         // Derive the key using PBKDF2
-        return new Rfc2898DeriveBytes(options.EncryptionKeyPassword, salt, KeyStretchIterations,
-            HashAlgorithmName.SHA256);
+        return Rfc2898DeriveBytes.Pbkdf2(
+            System.Text.Encoding.UTF8.GetBytes(options.EncryptionKeyPassword),
+            salt,
+            KeyStretchIterations,
+            HashAlgorithmName.SHA256,
+            KeySize);
     }
 
     public string Decrypt(byte[] encryptedBytes, byte[] salt)
@@ -87,9 +90,7 @@ public class CryptoHelper : ICryptoHelper
             Array.Copy(encryptedBytes, IvSize, cipherText, 0, cipherText.Length);
 
             // Derive the key using PBKDF2
-            var key = GetKeyStretchData(salt);
-
-            aes.Key = key.GetBytes(KeySize);
+            aes.Key = GetDerivedKey(salt);
             aes.IV = iv;
 
             using (var decryptor = aes.CreateDecryptor(aes.Key, aes.IV))
