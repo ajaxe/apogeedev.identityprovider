@@ -18,11 +18,16 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
         using var activity = ActivitySources.RequestHandlers.StartActivity(requesTypeName);
         var stopwatch = new Stopwatch();
         stopwatch.Start();
-        _logger.LogInformation("Handling {@Request}", requesTypeName);
-        var response = await next();
+
+        if (_logger.IsEnabled(LogLevel.Information))
+            _logger.LogInformation("Handling {@Request}", requesTypeName);
+
+        var response = await next(cancellationToken);
         stopwatch.Stop();
-        _logger.LogInformation("Handled {@Response} {@EllapsedMsec}",
-            typeof(TResponse).Name, stopwatch.ElapsedMilliseconds);
+
+        if (_logger.IsEnabled(LogLevel.Information))
+            _logger.LogInformation("Handled {@Response} {@EllapsedMsec}",
+                 typeof(TResponse).Name, stopwatch.ElapsedMilliseconds);
 
         return response;
     }
