@@ -1,4 +1,5 @@
 using ApogeeDev.IdentityProvider.Host;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +17,15 @@ builder.Configuration
     .AddJsonFile(secretsFile, optional: isSecretFileOptional, reloadOnChange: true)
     .AddEnvironmentVariables(prefix: Startup.EnvVarPrefix);
 
-var startup = new Startup(builder.Configuration, builder.Environment);
+using var loggerFactory = LoggerFactory.Create(logbuilder =>
+{
+    logbuilder.ClearProviders();
+    logbuilder.AddSerilog(new LoggerConfiguration()
+        .ReadFrom.Configuration(builder.Configuration)
+        .CreateLogger(), dispose: true);
+});
+
+var startup = new Startup(builder.Configuration, builder.Environment, loggerFactory.CreateLogger<Startup>());
 
 startup.ConfigureServices(builder.Services);
 

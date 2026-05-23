@@ -29,14 +29,16 @@ public class Startup
     private static string AppPathPrefix => System.Environment.GetEnvironmentVariable($"{EnvVarPrefix}AppPathPrefix")
         ?? string.Empty;
 
-    public Startup(ConfigurationManager configuration, IWebHostEnvironment environment)
+    public Startup(ConfigurationManager configuration, IWebHostEnvironment environment, ILogger<Startup> logger)
     {
         Configuration = configuration;
         Environment = environment;
+        Logger = logger;
     }
 
     public ConfigurationManager Configuration { get; }
     public IWebHostEnvironment Environment { get; }
+    public ILogger<Startup> Logger { get; }
 
     public void ConfigureServices(IServiceCollection services)
     {
@@ -227,7 +229,7 @@ public class Startup
                .SetMinimumTokenLifespan(TimeSpan.FromHours(12));
         })
         .AddClient(o => o.ConfigureOpenIdDictClient(Configuration))
-        .AddServer(o => o.ConfigureOpenIdDictServer(AppPathPrefix, Configuration))
+        .AddServer(o => o.ConfigureOpenIdDictServer(AppPathPrefix, Configuration, Logger))
         .AddValidation(o =>
         {
             o.UseLocalServer();
