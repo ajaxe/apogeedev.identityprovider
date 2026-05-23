@@ -6,34 +6,55 @@ namespace SelfSignedCert;
 public static class CertGen
 {
     public const string CertName = "Apogee-Dev Identity Server";
-    public static void CreateEncryptionCertificate()
+    public const int DefaultKeySizeInBits = 2048;
+    public static void CreateEncryptionCertificate(string outFilePrefix = "server-", DateTimeOffset? notBefore = null, DateTimeOffset? notAfter = null)
     {
-        using var algorithm = RSA.Create(keySizeInBits: 2048);
+        notBefore ??= DateTimeOffset.UtcNow;
+        notAfter ??= notBefore.Value.AddYears(2);
 
-        var subject = new X500DistinguishedName($"CN={CertName} Encryption Certificate");
-        var request = new CertificateRequest(subject, algorithm, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
-        request.CertificateExtensions.Add(new X509KeyUsageExtension(X509KeyUsageFlags.KeyEncipherment, critical: true));
+        if (notAfter <= notBefore)
+        {
+            throw new ArgumentException("not-after must be greater than not-before");
+        }
 
-        var certificate = request.CreateSelfSigned(DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.AddYears(2));
+        var certificate = GenerateCertificate($"CN={CertName} Encryption Certificate", X509KeyUsageFlags.KeyEncipherment,
+            notBefore.Value, notAfter.Value);
 
-        DeleteExisting("server-encryption-certificate.pfx");
+        DeleteExisting($"{outFilePrefix}encryption.pfx");
 
-        File.WriteAllBytes("server-encryption-certificate.pfx", certificate.Export(X509ContentType.Pfx, string.Empty));
+        File.WriteAllBytes($"{outFilePrefix}encryption.pfx", certificate.Export(X509ContentType.Pfx, string.Empty));
     }
 
-    public static void CreateSigningCertificate()
+    public static void CreateSigningCertificate(string outFilePrefix = "server-", DateTimeOffset? notBefore = null, DateTimeOffset? notAfter = null)
     {
-        using var algorithm = RSA.Create(keySizeInBits: 2048);
+        notBefore ??= DateTimeOffset.UtcNow;
+        notAfter ??= notBefore.Value.AddYears(2);
 
-        var subject = new X500DistinguishedName($"CN={CertName} Signing Certificate");
+        if (notAfter <= notBefore)
+        {
+            throw new ArgumentException("not-after must be greater than not-before");
+        }
+
+        var certificate = GenerateCertificate($"CN={CertName} Signing Certificate", X509KeyUsageFlags.DigitalSignature,
+            notBefore.Value, notAfter.Value);
+
+        DeleteExisting($"{outFilePrefix}signing.pfx");
+
+        File.WriteAllBytes($"{outFilePrefix}signing.pfx", certificate.Export(X509ContentType.Pfx, string.Empty));
+    }
+
+    private static X509Certificate2 GenerateCertificate(string commonName,
+        X509KeyUsageFlags keyUsageFlags, DateTimeOffset notBefore, DateTimeOffset notAfter)
+    {
+        using var algorithm = RSA.Create(keySizeInBits: DefaultKeySizeInBits);
+
+        var subject = new X500DistinguishedName($"CN={commonName}");
         var request = new CertificateRequest(subject, algorithm, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
-        request.CertificateExtensions.Add(new X509KeyUsageExtension(X509KeyUsageFlags.DigitalSignature, critical: true));
+        request.CertificateExtensions.Add(new X509KeyUsageExtension(keyUsageFlags, critical: true));
 
-        var certificate = request.CreateSelfSigned(DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.AddYears(2));
+        var certificate = request.CreateSelfSigned(notBefore, notAfter);
 
-        DeleteExisting("server-signing-certificate.pfx");
-
-        File.WriteAllBytes("server-signing-certificate.pfx", certificate.Export(X509ContentType.Pfx, string.Empty));
+        return certificate;
     }
 
     private static void DeleteExisting(string name)

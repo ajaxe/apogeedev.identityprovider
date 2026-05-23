@@ -167,7 +167,7 @@ Navigate to `src/ApogeeDev.IdentityProvider.Host/` and register the credentials 
 ```
 
 > **[IMPORTANT] Context & Secrets Policies**
-> Never share or check in actual secrets. Consult [AGENTS.md](AGENTS.md) for more details.
+> Never share or check in actual secrets. Consult [AGENTS.md](./AGENTS.md) for more details.
 
 ---
 
@@ -238,4 +238,4 @@ For metric collection (e.g., via Prometheus), the backend exports:
 Always adhere to the developer standards defined in the project workspaces:
 * **Backend Guidelines**: Read [src/ApogeeDev.IdentityProvider.Host/README.md](src/ApogeeDev.IdentityProvider.Host/README.md) for details on CQRS patterns, MediatR usage, database index tuning, and styling formats.
 * **Frontend Guidelines**: Read [src/idp-manager-app/README.md](src/idp-manager-app/README.md) for specifics on Vue Composition API `<script setup>` guidelines, Tailwind vs. Bootstrap styling conventions, and automatic linters (`pnpm lint` and `pnpm format`).
-* **Assistant Guidance**: When delegating or engaging in pairs, always comply with the global rule sets written in [AGENTS.md](AGENTS.md).
+* **Assistant Guidance**: When delegating or engaging in pairs, always comply with the global rule sets written in [AGENTS.md](./AGENTS.md).
