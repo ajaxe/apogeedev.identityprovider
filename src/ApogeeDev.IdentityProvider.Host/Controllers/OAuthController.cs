@@ -8,11 +8,9 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Razor.Language.Intermediate;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
-using ZstdSharp.Unsafe;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 using static OpenIddict.Client.WebIntegration.OpenIddictClientWebIntegrationConstants;
 
@@ -127,8 +125,27 @@ public class OAuthController : Controller
         var request = HttpContext.GetOpenIddictServerRequest()
             ?? throw new InvalidOperationException("Invalid open id request");
 
-        // Handle the authorization code grant type
-        if (request.IsAuthorizationCodeGrantType() || request.IsRefreshTokenGrantType())
+        if (request.IsClientCredentialsGrantType())
+        {
+            var identity = new ClaimsIdentity(
+                OpenIddictServerAspNetCoreDefaults.AuthenticationScheme, // This sets IsAuthenticated = true
+                Claims.Name,
+                Claims.Role);
+
+            // Client Credentials must map back to the Application Client ID as the Subject
+            var clientId = request.ClientId ?? throw new InvalidOperationException("Client ID is missing.");
+            identity.AddClaim(Claims.Subject, clientId);
+            identity.AddClaim(Claims.Name, clientId);
+
+            var claimsPrincipal = new ClaimsPrincipal(identity);
+
+            // Apply requested scopes
+            claimsPrincipal.SetScopes(request.GetScopes());
+
+            return SignIn(claimsPrincipal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+        }
+
+        if (request.IsAuthorizationCodeGrantType())
         {
             // Retrieve the claims principal associated with the authorization code
             var principal = (await HttpContext.AuthenticateAsync(

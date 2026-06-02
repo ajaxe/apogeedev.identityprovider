@@ -1,3 +1,4 @@
+using ApogeeDev.IdentityProvider.Host.Helpers.Authentication;
 using ApogeeDev.IdentityProvider.Host.Models.Configuration;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
@@ -39,7 +40,8 @@ public class AppClientListRequestHandler(OperationContext opContext,
             app.RedirectUris,
             app.PostLogoutRedirectUris,
             app.Permissions,
-            app.Requirements
+            app.Requirements,
+            app.Properties
         }).ToListAsync(cancellationToken);
 
         var clients = result.Select(app => new AppClientData
@@ -52,6 +54,12 @@ public class AppClientListRequestHandler(OperationContext opContext,
             PostLogoutRedirectUris = app.PostLogoutRedirectUris == null ? [] : [.. app.PostLogoutRedirectUris],
             AllowOfflineAccess = app.Permissions != null && app.Permissions.Contains(AppClient.OfflineAccessScope),
             EnablePkce = app.Requirements != null && app.Requirements.Contains(Requirements.Features.ProofKeyForCodeExchange),
+            FlowType = app.Permissions != null && app.Permissions.Contains(Permissions.GrantTypes.ClientCredentials)
+                ? OAuthFlowTypes.ClientCredentials
+                : OAuthFlowTypes.AuthorizationCode,
+            SkipAccessTokenEncryption = app.Properties != null
+                && app.Properties.TryGetValue(ConfigureAccessTokenEncryption.SkipTokenEncryptionProp, out var skipEncValue)
+                && skipEncValue.IsBoolean && skipEncValue.AsBoolean
         }).ToList();
 
         foreach (var itm in clients.IntersectBy(appClientOptions.Clients.Select(x => x.ClientId),

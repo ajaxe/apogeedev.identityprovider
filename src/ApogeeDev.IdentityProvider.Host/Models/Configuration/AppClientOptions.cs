@@ -51,6 +51,13 @@ public class AppClient
         yield return Permissions.Scopes.Roles;
     }
 
+    public static IEnumerable<string> ClientCredentialsPermissions()
+    {
+        yield return Permissions.Endpoints.Token;
+        yield return Permissions.GrantTypes.ClientCredentials;
+        yield return Permissions.Scopes.Roles;
+    }
+
 
     private IEnumerable<object> GetMembers()
     {

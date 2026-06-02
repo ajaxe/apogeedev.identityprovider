@@ -1,5 +1,8 @@
 using System.Security.Cryptography.X509Certificates;
 using OpenIddict.Abstractions;
+using OpenIddict.Server;
+using static OpenIddict.Server.OpenIddictServerEvents;
+
 
 namespace ApogeeDev.IdentityProvider.Host.Helpers.Authentication;
 
@@ -26,6 +29,7 @@ public static class AuthServerExtension
             .SetUserInfoEndpointUris($"{AppPathPrefix}/connect/userinfo")
             .AllowAuthorizationCodeFlow()
             .AllowRefreshTokenFlow()
+            .AllowClientCredentialsFlow()
             // .RequireProofKeyForCodeExchange() // Enable PKCE per client configuration
             .AddEncryptionCertificates(encryptionCerts)
             .AddSigningCertificates(signingCerts)
@@ -35,6 +39,10 @@ public static class AuthServerExtension
             .EnableTokenEndpointPassthrough()
             .EnableUserInfoEndpointPassthrough()
             .DisableTransportSecurityRequirement();
+
+        o.AddEventHandler<ProcessSignInContext>(builder =>
+            builder.UseScopedHandler<ConfigureAccessTokenEncryption>()
+                .SetOrder(OpenIddictServerHandlers.GenerateAccessToken.Descriptor.Order - 1));
     }
 
     private static IEnumerable<X509Certificate2> LoadEncryptionCerts(IConfiguration configuration, ILogger logger)

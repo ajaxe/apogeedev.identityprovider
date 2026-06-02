@@ -237,6 +237,8 @@ public class Startup
             //o.UseDataProtection(); // map to docker volume
         });
 
+        services.AddScoped<ConfigureAccessTokenEncryption>();
+
         services.AddHostedService<MongoDbPerformanceInitializer>();
         services.AddHostedService<ApplicationClientInitializer>();
     }

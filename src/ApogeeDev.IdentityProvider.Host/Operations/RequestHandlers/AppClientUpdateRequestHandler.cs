@@ -1,11 +1,14 @@
+using System.Text.Json;
+using ApogeeDev.IdentityProvider.Host.Helpers.Authentication;
 using ApogeeDev.IdentityProvider.Host.Models.Configuration;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using OpenIddict.MongoDb.Models;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace ApogeeDev.IdentityProvider.Host.Operations.RequestHandlers;
 
-public class AppClientUpdateRequestHandler(OperationContext opContext)
+public class AppClientUpdateRequestHandler(OperationContext opContext, ILogger<AppClientUpdateRequestHandler> logger)
     : IRequestHandler<AppClientUpdateRequest, AppClientUpdateResponse>
 {
     public async Task<AppClientUpdateResponse> Handle(AppClientUpdateRequest request,
@@ -26,29 +29,41 @@ public class AppClientUpdateRequestHandler(OperationContext opContext)
 
         var collection = await opContext.GetApplicationsCollectionAsync(cancellationToken);
 
-        var permissions = AppClient.DefaultPermissions();
+        var (permissions, requirements) = request.Data.MapRequirementPermissions();
 
-        if (request.Data.AllowOfflineAccess)
+        var clientType = request.Data.ClientType; // confidential/public
+        var applicationType = request.Data.ApplicationType;
+        var redirectUris = request.Data.RedirectUris;
+        var postLogoutRedirectUris = request.Data.PostLogoutRedirectUris;
+
+        if (request.Data.FlowType == OAuthFlowTypes.ClientCredentials)
         {
-            permissions = AppClient.GetPermissionsWithOfflineAccess();
+            logger.LogInformation("Setting client type to confidential and application type to web for client credentials flow");
+            clientType = ClientTypes.Confidential;
+            applicationType = ApplicationTypes.Web;
+            logger.LogInformation("Removing redirect uris for client credentials flow");
+            redirectUris = Array.Empty<string>();
+            postLogoutRedirectUris = Array.Empty<string>();
         }
 
-        var requirements = new List<string>();
-        if (request.Data.EnablePkce)
-        {
-            requirements.Add(Requirements.Features.ProofKeyForCodeExchange);
-        }
+        logger.LogInformation("Updating client {Permissions}, {Requirements}", permissions, requirements);
+
+        var propKey = ConfigureAccessTokenEncryption.SkipTokenEncryptionProp;
+        var propValue = BsonValue.Create(request.Data.SkipAccessTokenEncryption);
+
+        var updateDef = Builders<OpenIddictMongoDbApplication>.Update
+            .Set(doc => doc.DisplayName, request.Data.DisplayName)
+            .Set(doc => doc.ApplicationType, applicationType)
+            .Set(doc => doc.ClientType, clientType)
+            .Set(doc => doc.RedirectUris, redirectUris)
+            .Set(doc => doc.PostLogoutRedirectUris, postLogoutRedirectUris)
+            .Set(doc => doc.Permissions, permissions)
+            .Set(doc => doc.Requirements, requirements)
+            .Set($"{nameof(OpenIddictMongoDbApplication.Properties)}.{propKey}", propValue);
 
         var result = await collection.UpdateOneAsync(
             Builders<OpenIddictMongoDbApplication>.Filter.Eq(doc => doc.ClientId, request.Data.ClientId),
-            Builders<OpenIddictMongoDbApplication>.Update
-                .Set(doc => doc.DisplayName, request.Data.DisplayName)
-                .Set(doc => doc.ApplicationType, request.Data.ApplicationType)
-                .Set(doc => doc.ClientType, request.Data.ClientType)
-                .Set(doc => doc.RedirectUris, request.Data.RedirectUris)
-                .Set(doc => doc.PostLogoutRedirectUris, request.Data.PostLogoutRedirectUris)
-                .Set(doc => doc.Permissions, permissions)
-                .Set(doc => doc.Requirements, requirements),
+            updateDef,
             null, // UpdateOptions
             cancellationToken);
 
