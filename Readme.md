@@ -21,8 +21,10 @@ graph TD
     classDef db fill:#10b981,stroke:#065f46,stroke-width:2px,color:#fff;
     classDef spa fill:#f59e0b,stroke:#78350f,stroke-width:2px,color:#fff;
     classDef external fill:#8b5cf6,stroke:#4c1d95,stroke-width:2px,color:#fff;
+    classDef m2m fill:#ef4444,stroke:#991b1b,stroke-width:2px,color:#fff;
 
     ClientApp["Client Application <br/> (SPA / Mobile / Web)"]:::spa
+    M2MClient["M2M Service / Daemon <br/> (Backend Service)"]:::m2m
     Host["IdentityProvider.Host <br/> (ASP.NET Core & OpenIddict)"]:::main
     MongoDb[("MongoDB Database <br/> (EF Core)")]:::db
     SPAAdmin["IDP Manager App <br/> (Vue 3 / Vite SPA)"]:::spa
@@ -31,6 +33,7 @@ graph TD
     Otel["OpenTelemetry / Prometheus <br/> (Observability)"]:::main
 
     ClientApp -- "OIDC Flows (Auth Code + PKCE)" --> Host
+    M2MClient -- "OAuth 2.0 (Client Credentials)" --> Host
     SPAAdmin -- "OIDC Management API Requests" --> Host
     Host -- "Read / Write Clients, Scopes, Users" --> MongoDb
     Host -- "Federated Logins" --> GitHubProvider
@@ -42,7 +45,7 @@ graph TD
 
 ## ✨ Key Features
 
-- **Standardized OIDC & OAuth 2.0 Engine**: Built on top of **OpenIddict**, supporting modern security profiles, including **Authorization Code Flow with PKCE** and **Refresh Tokens**.
+- **Standardized OIDC & OAuth 2.0 Engine**: Built on top of **OpenIddict**, supporting modern security profiles, including **Authorization Code Flow with PKCE**, **Client Credentials (M2M)**, and **Refresh Tokens**.
 - **Decoupled CQRS Architecture**: Structured using the **MediatR** pattern in .NET to decouple business rules and handler operations (`RequestHandlers` and `Processors`).
 - **MongoDB Data Layer**: High-speed, document-driven persistence via `MongoDB.Driver` & `MongoDB.EntityFrameworkCore`. Specifically performance-tuned with automated database indexing initialization.
 - **Federated Social Identity**: Seamlessly integrates external OAuth web identity providers (such as **Google** and **GitHub**) via unified custom Claims Processors.
@@ -201,6 +204,21 @@ pnpm --filter idp-manager-app dev
 ```
 
 The administration portal runs locally at `https://localhost:5173/` by default.
+
+---
+
+### 5️⃣ Step 5: Request an M2M Token (Client Credentials)
+The Identity Provider supports Machine-to-Machine (M2M) authentication via the Client Credentials flow. Once a client is configured with the `client_credentials` grant type, developers can request an access token for their backend services using a standard HTTP request.
+
+Example cURL command:
+```bash
+curl -X POST https://localhost:5001/connect/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=client_credentials" \
+  -d "client_id=YOUR_CLIENT_ID" \
+  -d "client_secret=YOUR_CLIENT_SECRET"
+```
+This returns a JWT access token that can be used to authorize requests to protected APIs on behalf of the application (rather than a user).
 
 ---
 

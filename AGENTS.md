@@ -42,3 +42,11 @@ If I make a mistake, get stuck, or misunderstand a request:
 - Use `git status` to see what files I've changed.
 - Use `git restore <file_path>` to revert changes to a specific file if needed.
 - Clarify the request with more context or a different approach.
+
+## 4. Authentication Flows
+
+### Client Credentials Flow
+The Identity Provider now supports Machine-to-Machine (M2M) authentication via the **Client Credentials** flow.
+- This flow operates by allowing clients (with `grant_type=client_credentials` permissions) to authenticate directly using their `client_id` and `client_secret` against the `/connect/token` endpoint.
+- It is implemented within the OpenIddict framework by explicitly allowing the `OpenIddictConstants.Permissions.GrantTypes.ClientCredentials` permission when creating or configuring application clients.
+- In `Exchange.cs` (or equivalent token handler), requests are validated and claims are issued based on the application entity rather than a user entity, as no user is involved in this M2M flow. When modifying identity endpoints, ensure you account for `client_credentials` grant requests correctly, issuing identity claims based on the client instead of standard user claims.
