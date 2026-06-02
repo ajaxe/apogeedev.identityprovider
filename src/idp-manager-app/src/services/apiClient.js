@@ -70,11 +70,11 @@ const deleteOp = async (url) => {
 
 /**
  *
- * @param {Response} response
+ * @param {Response | undefined} response
  * @returns
  */
 const isSuccessful = (response) => {
-  return response.status >= 200 && response.status < 300
+  return response && response.status >= 200 && response.status < 300
 }
 export const apiClient = {
   get,

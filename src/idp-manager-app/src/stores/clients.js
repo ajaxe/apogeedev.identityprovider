@@ -21,6 +21,8 @@ export const useClientStore = defineStore('clients', {
       postLogoutRedirectUris: [],
       allowOfflineAccess: false,
       enablePkce: true,
+      flowType: 'authorization_code',
+      skipAccessTokenEncryption: false,
     }),
 
     filteredClients: (state) =>
@@ -70,7 +72,7 @@ export const useClientStore = defineStore('clients', {
       /**
        * @type {import('@/types').AppClientDataWithSecretResponse}
        */
-      const d = await r.json()
+      const d = await r?.json()
       if (!apiClient.isSuccessful(r)) {
         return {
           errors: d.errors,
@@ -98,12 +100,24 @@ export const useClientStore = defineStore('clients', {
     },
     async fetchClients() {
       const r = await apiClient.get('/api/app-client')
-      const d = await r.json()
+      const d = await r?.json()
+      if (apiClient.isSuccessful(r)) {
+        for (const c of d) {
+          if(!('flowType' in c) || !c.flowType) {
+            c.flowType = 'authorization_code'
+          }
+        }
+      }
       this.list = d
     },
     async fetchClientById(clientId) {
       const r = await apiClient.get(`/api/app-client/${clientId}`)
       const d = await r.json()
+      if (apiClient.isSuccessful(r)) {
+       if(!('flowType' in d) || !d.flowType) {
+            d.flowType = 'authorization_code'
+          }
+      }
       return d
     },
     async deleteClient(clientId) {

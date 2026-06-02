@@ -46,7 +46,7 @@ const save = async () => {
     errors.value = result.errors
     notifyError('Fix validation errors.')
   } else {
-    if (result.clientType !== 'public') {
+    if (result && 'clientType' in result && result.clientType !== 'public') {
       newClientId.value = result.clientId
       newClientName.value = model.value.displayName
       generatedClientSecret.value = result.clientSecret

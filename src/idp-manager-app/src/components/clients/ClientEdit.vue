@@ -17,6 +17,20 @@
   <!-- Main Card -->
   <div class="card bg-dark text-light border-secondary shadow-sm">
     <div class="card-body p-4">
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <label for="flow-type" class="form-label text-light">OAuth flow</label>
+          <!-- Passing dark classes to custom component, assuming fallthrough attributes -->
+          <FlowTypeSelect
+            id="flow-type"
+            v-model="model.flowType"
+            class="form-select bg-dark text-light border-secondary"
+          />
+          <div class="text-danger-emphasis small mt-1" v-if="errors?.FlowType">
+            {{ errors?.FlowType[0] }}
+          </div>
+        </div>
+      </div>
       <!-- Row 1: Identity Info -->
       <div class="row g-3 mb-3">
         <div class="col-md-6">
@@ -48,7 +62,7 @@
       </div>
 
       <!-- Row 2: Types Configuration -->
-      <div class="row g-3 mb-4">
+      <div class="row g-3 mb-4" v-if="isAuthCodeFlow">
         <div class="col-md-6">
           <label for="app-type" class="form-label text-light">Application Type</label>
           <!-- Passing dark classes to custom component, assuming fallthrough attributes -->
@@ -75,10 +89,10 @@
         </div>
       </div>
 
-      <hr class="border-secondary opacity-50 my-4" />
+      <hr class="border-secondary opacity-50 my-4" v-if="isAuthCodeFlow" />
 
       <!-- Row 3: Redirect URIs -->
-      <div class="mb-4">
+      <div class="mb-4" v-if="isAuthCodeFlow">
         <label for="redirect-uri" class="form-label text-light">Redirect URIs</label>
         <!-- Preserving your existing component -->
         <MultipleUriAdd v-model="model.redirectUris" id="redirect-uri" />
@@ -88,7 +102,7 @@
       </div>
 
       <!-- Row 4: Post-Logout URIs -->
-      <div class="mb-4">
+      <div class="mb-4" v-if="isAuthCodeFlow">
         <label for="post-logout-uri" class="form-label text-light">Post-Logout Redirect URIs</label>
         <MultipleUriAdd v-model="model.postLogoutRedirectUris" id="post-logout-uri" />
         <div class="text-danger-emphasis small mt-1" v-if="errors?.PostLogoutRedirectUris">
@@ -97,7 +111,7 @@
       </div>
 
       <!-- Row 5: Allow Offline Access -->
-      <div class="mb-4">
+      <div class="mb-4" v-if="isAuthCodeFlow">
         <label for="allow-offline-access" class="form-label text-light">Allow Offline Access</label>
         <input
           type="checkbox"
@@ -111,7 +125,7 @@
       </div>
 
       <!-- Row 6: Enable PKCE -->
-      <div class="mb-4">
+      <div class="mb-4" v-if="isAuthCodeFlow">
         <label for="enable-pkce" class="form-label text-light">Enable PKCE</label>
         <input
           type="checkbox"
@@ -122,6 +136,15 @@
         <div class="text-danger-emphasis small mt-1" v-if="errors?.EnablePkce">
           {{ errors?.EnablePkce[0] }}
         </div>
+      </div>
+      <div class="mb-4" v-if="!isAuthCodeFlow">
+        <label for="disable-token-encryption" class="form-label text-light">Disable Token Encryption</label>
+        <input
+          type="checkbox"
+          id="disable-token-encryption"
+          v-model="model.skipAccessTokenEncryption"
+          class="form-check-input ms-3"
+        />
       </div>
 
       <!-- Footer Actions -->
@@ -158,9 +181,11 @@
 }
 </style>
 <script setup>
+import { computed } from 'vue'
 import AppTypeSelect from '@/components/forms/AppTypeSelect.vue'
 import ClientTypeSelect from '@/components/forms/ClientTypeSelect.vue'
 import MultipleUriAdd from '@/components/forms/MultipleUriAdd.vue'
+import FlowTypeSelect from '@/components/forms/FlowTypeSelect.vue'
 
 const { errors, isEdit } = defineProps({
   errors: {
@@ -176,5 +201,6 @@ const { errors, isEdit } = defineProps({
  * type {import('@/types').ClientListItem}
  */
 const model = defineModel()
+const isAuthCodeFlow = computed(() =>model.value.flowType === 'authorization_code')
 defineEmits(['submit', 'cancel'])
 </script>

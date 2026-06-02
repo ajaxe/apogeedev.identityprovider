@@ -9,6 +9,7 @@ export interface ClientListItem {
   allowOfflineAccess: boolean
   enablePkce: boolean
   errors?: ErrorResponseProps
+  flowType: string
 }
 
 export type AppClientDataWithSecret = ClientListItem & { clientSecret: string }
