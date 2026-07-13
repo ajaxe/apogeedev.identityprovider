@@ -14,27 +14,21 @@ public class ExchangeRefreshTokenRequest : IRequest<ClaimsPrincipal?>
     public string[] RequestedScopes { get; set; } = Array.Empty<string>();
 }
 
-public class ExchangeRefreshTokenRequestHandler : IRequestHandler<ExchangeRefreshTokenRequest, ClaimsPrincipal?>
+public class ExchangeRefreshTokenRequestHandler(ApplicationDbContext dbContext, ILogger<ExchangeRefreshTokenRequestHandler> logger)
+    : IRequestHandler<ExchangeRefreshTokenRequest, ClaimsPrincipal?>
 {
-    private readonly ApplicationDbContext _dbContext;
-
-    public ExchangeRefreshTokenRequestHandler(ApplicationDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
-
     public async Task<ClaimsPrincipal?> Handle(ExchangeRefreshTokenRequest request, CancellationToken cancellationToken)
     {
         var subject = request.OriginalPrincipal.GetClaim(Claims.Subject);
         var idp = request.OriginalPrincipal.GetClaim(CustomClaimTypes.IdpServer.IdP);
 
         // 1. Verify user still exists
-        var user = await _dbContext.AppUsers
+        var user = await dbContext.AppUsers
             .FirstOrDefaultAsync(u => u.Subject == subject && u.IdentityProvider == idp, cancellationToken);
 
         if (user == null)
         {
-            // Returning null signals to the controller that the user is invalid/deleted
+            logger.LogWarning("User with subject {Subject} and IdP {IdP} not found during refresh token exchange.", subject, idp);
             return null;
         }
 
@@ -48,7 +42,10 @@ public class ExchangeRefreshTokenRequestHandler : IRequestHandler<ExchangeRefres
         }
         else
         {
-            claimsPrincipal.SetScopes(request.RequestedScopes.Intersect(request.OriginalPrincipal.GetScopes()));
+            var effectiveScopes = request.RequestedScopes.Intersect(request.OriginalPrincipal.GetScopes()).ToArray();
+            logger.LogInformation("User {Subject} and IdP {IdP}. Requested scopes: {RequestedScopes}, Effective scopes: {EffectiveScopes}.",
+                subject, idp, request.RequestedScopes, effectiveScopes);
+            claimsPrincipal.SetScopes(effectiveScopes);
         }
 
         return claimsPrincipal;
