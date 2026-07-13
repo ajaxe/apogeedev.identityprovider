@@ -1,3 +1,4 @@
+using DotNet.Testcontainers.Builders;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -15,8 +16,9 @@ public class IntegrationTestFactory : WebApplicationFactory<Program>, IAsyncLife
 
     public IntegrationTestFactory()
     {
-        _mongoDbContainer = new MongoDbBuilder()
+        _mongoDbContainer = new MongoDbBuilder("mongo:latest")
             .WithImage("mongo:latest")
+            .WithWaitStrategy(Wait.ForUnixContainer().UntilMessageIsLogged("Waiting for connections"))
             .Build();
     }
 
@@ -30,7 +32,7 @@ public class IntegrationTestFactory : WebApplicationFactory<Program>, IAsyncLife
                 return new MongoClient(_mongoDbContainer.GetConnectionString());
             });
         });
-        
+
         builder.ConfigureAppConfiguration((context, config) =>
         {
             config.AddInMemoryCollection(new Dictionary<string, string?>
@@ -43,11 +45,13 @@ public class IntegrationTestFactory : WebApplicationFactory<Program>, IAsyncLife
 
     public async Task InitializeAsync()
     {
-        await _mongoDbContainer.StartAsync();
+        await _mongoDbContainer.StartAsync()
+            .ConfigureAwait(false);
     }
 
     public new async Task DisposeAsync()
     {
-        await _mongoDbContainer.DisposeAsync();
+        await _mongoDbContainer.DisposeAsync()
+            .ConfigureAwait(false);
     }
 }

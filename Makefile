@@ -9,3 +9,7 @@ docker-backend:
 docker-frontend:
 	@echo "Docker build frontend"
 	@docker build . -f build/Dockerfile.spa --network=host --tag apogee-dev/identity-provider-spa:local
+
+tests:
+	@echo "Run tests"
+	@dotnet test src\ApogeeDev.IdentityProvider.Host.IntegrationTests\ApogeeDev.IdentityProvider.Host.IntegrationTests.csproj

@@ -65,7 +65,7 @@ graph TD
 │   ├── Dockerfile.spa           # Vue 3 SPA frontend docker build
 │   ├── entrypoint.spa.sh        # Shell entrypoint script for Nginx SPA environment configuration
 │   └── nginx.conf               # Custom high-performance SPA Nginx config
-├── src/                         
+├── src/
 │   ├── ApogeeDev.IdentityProvider.Host/ # ASP.NET Core OpenIddict Backend Host
 │   │   ├── Controllers/         # MVC & API controllers (Callback, OAuth, and API management)
 │   │   ├── Data/                # Database contexts, entities, and health checks
@@ -239,9 +239,25 @@ make all
 
 ---
 
+## Running integration test on windows
+
+The integration tests use Testcontainer for dotnet. This requires a ssh tunnel to remote docker instance (in my case). Open a tunnel in separate terminal using following
+
+```bash
+ssh -N -L 127.0.0.1:2374:/var/run/docker.sock -D 1080 localadmin@internal.apogee-dev.com -p 54921
+```
+
+Then run integration tests using following command (from repo root)
+
+```pwsh
+$env:DOCKER_HOST = "tcp://127.0.0.1:2374"; dotnet test src\ApogeeDev.IdentityProvider.Host.IntegrationTests\ApogeeDev.IdentityProvider.Host.IntegrationTests.csproj
+```
+
+---
+
 ## 📈 Monitoring & Observability
 
-The application integrates premium observability via **OpenTelemetry**. Traces are generated for database operations, MediatR request handlers, claims processing steps, and HTTP calls. 
+The application integrates premium observability via **OpenTelemetry**. Traces are generated for database operations, MediatR request handlers, claims processing steps, and HTTP calls.
 
 Configure your telemetry collector (e.g. Jaeger or OpenTelemetry Collector) by setting the **`OTLP_ENDPOINT_URL`** environment variable before start.
 
