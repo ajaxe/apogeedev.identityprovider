@@ -120,29 +120,31 @@ public class OAuthController : Controller
     }
 
     [HttpPost("token")]
-    public async Task<IActionResult> Exchange()
+    public async Task<IActionResult> Exchange([FromServices] IMediator mediator)
     {
         var request = HttpContext.GetOpenIddictServerRequest()
             ?? throw new InvalidOperationException("Invalid open id request");
 
         if (request.IsClientCredentialsGrantType())
         {
-            var identity = new ClaimsIdentity(
-                OpenIddictServerAspNetCoreDefaults.AuthenticationScheme, // This sets IsAuthenticated = true
-                Claims.Name,
-                Claims.Role);
+            var response = await mediator.Send(new ExchangeClientCredentialsTokenRequest
+            {
+                ClientId = request.ClientId,
+                RequestedScopes = request.GetScopes().ToArray(),
+            });
 
-            // Client Credentials must map back to the Application Client ID as the Subject
-            var clientId = request.ClientId ?? throw new InvalidOperationException("Client ID is missing.");
-            identity.AddClaim(Claims.Subject, clientId);
-            identity.AddClaim(Claims.Name, clientId);
+            if (response.Principal == null || response.Error != null || response.ErrorDescription != null)
+            {
+                return Forbid(
+                    authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+                    properties: new AuthenticationProperties(new Dictionary<string, string?>
+                    {
+                        [OpenIddictServerAspNetCoreConstants.Properties.Error] = response.Error ?? Errors.InvalidClient,
+                        [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = response.ErrorDescription ?? string.Empty,
+                    }));
+            }
 
-            var claimsPrincipal = new ClaimsPrincipal(identity);
-
-            // Apply requested scopes
-            claimsPrincipal.SetScopes(request.GetScopes());
-
-            return SignIn(claimsPrincipal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+            return SignIn(response.Principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
         }
 
         if (request.IsAuthorizationCodeGrantType())
@@ -166,7 +168,31 @@ public class OAuthController : Controller
             return SignIn(claimsPrincipal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
         }
 
-        return BadRequest("Invalid grant type.");
+        if (request.IsRefreshTokenGrantType())
+        {
+            var result = await HttpContext.AuthenticateAsync(
+                OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+
+            if (result is not { Succeeded: true })
+            {
+                return ForbidInvalidGrant("The refresh token is no longer valid.");
+            }
+
+            var claimsPrincipal = await mediator.Send(new ExchangeRefreshTokenRequest
+            {
+                OriginalPrincipal = result.Principal,
+                RequestedScopes = request.GetScopes().ToArray(),
+            });
+
+            if (claimsPrincipal == null)
+            {
+                return ForbidInvalidGrant("The user account no longer exists.");
+            }
+
+            return SignIn(claimsPrincipal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+        }
+
+        return ForbidInvalidGrant("Invalid grant type.");
     }
 
     [Authorize(AuthenticationSchemes = OpenIddictServerAspNetCoreDefaults.AuthenticationScheme)]
@@ -223,5 +249,16 @@ public class OAuthController : Controller
         // can be found here: http://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
 
         return Ok(claims);
+    }
+
+    private ForbidResult ForbidInvalidGrant(string errorDescription)
+    {
+        return Forbid(
+            authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+            properties: new AuthenticationProperties(new Dictionary<string, string?>
+            {
+                [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.InvalidGrant,
+                [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = errorDescription
+            }));
     }
 }
