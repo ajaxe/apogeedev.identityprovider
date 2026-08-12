@@ -137,7 +137,7 @@
           {{ errors?.EnablePkce[0] }}
         </div>
       </div>
-      <div class="mb-4" v-if="!isAuthCodeFlow">
+      <div class="mb-4">
         <label for="disable-token-encryption" class="form-label text-light">Disable Token Encryption</label>
         <input
           type="checkbox"
