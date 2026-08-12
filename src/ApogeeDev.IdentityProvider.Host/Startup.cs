@@ -48,16 +48,31 @@ public class Startup
                 .PersistKeysToFileSystem(new DirectoryInfo("/dpapi-keys/"));
             AddOpenTelemetry(services);
         }
-        else
+
+        services.AddCors(opts =>
         {
-            services.AddCors(opts =>
-            {
-                opts.AddPolicy(DevAllowCors,
-                    policy => policy.WithOrigins("https://localhost:5173")
-                               .AllowAnyMethod()
-                               .AllowAnyHeader());
-            });
-        }
+            opts.AddPolicy(DevAllowCors,
+                policy => policy.SetIsOriginAllowed(origin =>
+                {
+                    if (string.IsNullOrEmpty(origin)) return false;
+
+                    var uri = new Uri(origin);
+                    var host = uri.Host;
+
+                    // 1. Match localhost or 127.0.0.1 on ANY port
+                    bool isLocalhost = host.Equals("localhost", StringComparison.OrdinalIgnoreCase) ||
+                                       host.Equals("127.0.0.1", StringComparison.OrdinalIgnoreCase);
+
+                    // 2. Match any subdomain ending in .apogee-dev.com or the root domain apogee-dev.com
+                    bool isApogeeDomain = host.Equals("apogee-dev.com", StringComparison.OrdinalIgnoreCase) ||
+                                          host.EndsWith(".apogee-dev.com", StringComparison.OrdinalIgnoreCase);
+
+                    return isLocalhost || isApogeeDomain;
+                })
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials());
+        });
 
         var appOptions = new AppOptions();
         Configuration.GetSection(AppOptions.SectionName)
@@ -268,8 +283,7 @@ public class Startup
 
         app.UseRouting();
 
-        if (Environment.IsDevelopment())
-            app.UseCors(DevAllowCors);
+        app.UseCors(DevAllowCors);
 
         app.UseAuthentication();
         app.UseAuthorization();
