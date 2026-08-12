@@ -43,6 +43,10 @@ public static class AuthServerExtension
         o.AddEventHandler<ProcessSignInContext>(builder =>
             builder.UseScopedHandler<ConfigureAccessTokenEncryption>()
                 .SetOrder(OpenIddictServerHandlers.GenerateAccessToken.Descriptor.Order - 1));
+
+        o.AddEventHandler<ProcessSignInContext>(builder =>
+            builder.UseScopedHandler<AttachClientAudienceHandler>()
+                .SetOrder(OpenIddictServerHandlers.GenerateAccessToken.Descriptor.Order - 1));
     }
 
     private static IEnumerable<X509Certificate2> LoadEncryptionCerts(IConfiguration configuration, ILogger logger)
