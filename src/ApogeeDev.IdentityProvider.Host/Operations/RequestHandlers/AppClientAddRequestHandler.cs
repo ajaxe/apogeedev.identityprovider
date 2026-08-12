@@ -42,13 +42,18 @@ public class AppClientAddRequestHandler(OperationContext opContext, ICryptoHelpe
             };
         }
 
-        var clientSecret = WebEncoders.Base64UrlEncode(
-                cryptoHelper.GenerateRandom(40));
-
         var (permissions, requirements) = request.Data.MapRequirementPermissions();
 
         var clientType = request.Data.ClientType; // confidential/public
         var applicationType = request.Data.ApplicationType;
+
+        var clientSecret = string.Empty;
+
+        if (clientType == ClientTypes.Confidential)
+        {
+            clientSecret = WebEncoders.Base64UrlEncode(
+                cryptoHelper.GenerateRandom(40));
+        }
 
         if (request.Data.FlowType == OAuthFlowTypes.ClientCredentials)
         {
@@ -68,7 +73,7 @@ public class AppClientAddRequestHandler(OperationContext opContext, ICryptoHelpe
             ApplicationType = applicationType,
         };
 
-        if(request.Data.FlowType == OAuthFlowTypes.AuthorizationCode)
+        if (request.Data.FlowType == OAuthFlowTypes.AuthorizationCode)
         {
             descriptor.RedirectUris.UnionWith(request.Data.RedirectUris.Select(s => new Uri(s)));
             descriptor.PostLogoutRedirectUris.UnionWith(request.Data.PostLogoutRedirectUris.Select(s => new Uri(s)));
