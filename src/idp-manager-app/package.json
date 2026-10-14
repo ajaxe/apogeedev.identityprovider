@@ -20,24 +20,24 @@
     "bootstrap": "^5.3.8",
     "oidc-client-ts": "^3.5.0",
     "pinia": "^3.0.4",
-    "vue": "^3.5.34",
+    "vue": "^3.5.44",
     "vue-router": "^4.6.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
-    "@prettier/plugin-oxc": "^0.0.4",
-    "@vitejs/plugin-vue": "^6.0.6",
+    "@prettier/plugin-oxc": "^0.2.3",
+    "@vitejs/plugin-vue": "^6.0.10",
     "@vue/eslint-config-prettier": "^10.2.0",
-    "bootstrap-icons": "^1.13.1",
+    "bootstrap-icons": "^1.13.2",
     "eslint": "^9.39.4",
-    "eslint-plugin-oxlint": "~1.23.0",
-    "eslint-plugin-vue": "~10.5.1",
+    "eslint-plugin-oxlint": "~1.88.0",
+    "eslint-plugin-vue": "~10.11.1",
     "globals": "^16.5.0",
     "npm-run-all2": "^8.0.4",
-    "oxlint": "~1.23.0",
-    "prettier": "3.6.2",
-    "sass-embedded": "^1.99.0",
+    "oxlint": "~1.88.0",
+    "prettier": "3.9.10",
+    "sass-embedded": "^1.105.1",
     "vite": "^7.3.5",
-    "vite-plugin-vue-devtools": "^8.1.2"
+    "vite-plugin-vue-devtools": "^8.2.1"
   }
 }

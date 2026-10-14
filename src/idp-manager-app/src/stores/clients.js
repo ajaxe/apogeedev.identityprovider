@@ -65,7 +65,7 @@ export const useClientStore = defineStore('clients', {
     /**
      *
      * @param {import('@/types').ClientListItem} client
-     * @returns {Promise<import('@/types').AppClientDataWithSecret | import('@/types').ErrorsResponse>}
+     * @returns {Promise<import('@/types').AppClientDataWithSecret | import('@/types').ErrorsResponse | undefined>}
      */
     async add(client) {
       const r = await apiClient.post('/api/app-client', client)
@@ -79,7 +79,8 @@ export const useClientStore = defineStore('clients', {
         }
       }
       const { appClientData } = d
-      const { clientSecret, ...c } = appClientData
+      if (!appClientData) return
+      const { clientSecret: _, ...c } = appClientData
       this.list.push(c)
       return appClientData
     },
@@ -92,9 +93,9 @@ export const useClientStore = defineStore('clients', {
       const r = await apiClient.put(`/api/app-client/${client.clientId}`, client)
 
       if (!apiClient.isSuccessful(r)) {
-        const d = await r.json()
+        const d = await r?.json()
         return {
-          errors: d.errors,
+          errors: d?.errors,
         }
       }
     },
@@ -103,23 +104,29 @@ export const useClientStore = defineStore('clients', {
       const d = await r?.json()
       if (apiClient.isSuccessful(r)) {
         for (const c of d) {
-          if(!('flowType' in c) || !c.flowType) {
+          if (!('flowType' in c) || !c.flowType) {
             c.flowType = 'authorization_code'
           }
         }
       }
       this.list = d
     },
+    /**
+     * @param {string} clientId
+     */
     async fetchClientById(clientId) {
       const r = await apiClient.get(`/api/app-client/${clientId}`)
-      const d = await r.json()
+      const d = await r?.json()
       if (apiClient.isSuccessful(r)) {
-       if(!('flowType' in d) || !d.flowType) {
-            d.flowType = 'authorization_code'
-          }
+        if (!('flowType' in d) || !d.flowType) {
+          d.flowType = 'authorization_code'
+        }
       }
       return d
     },
+    /**
+     * @param {string} clientId
+     */
     async deleteClient(clientId) {
       const r = await apiClient.delete(`/api/app-client/${clientId}`)
       if (apiClient.isSuccessful(r)) {
@@ -132,7 +139,7 @@ export const useClientStore = defineStore('clients', {
   },
 })
 
-function applyFilters(clients, { q, filter }) {
+export function applyFilters(clients, { q, filter }) {
   console.log('Applying filters:', { q, filter })
   return clients.filter((client) => {
     let matches = true
