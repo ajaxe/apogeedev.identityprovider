@@ -37,7 +37,7 @@
     "oxlint": "~1.88.0",
     "prettier": "3.9.10",
     "sass-embedded": "^1.105.1",
-    "vite": "^7.3.5",
+    "vite": "^7.3.7",
     "vite-plugin-vue-devtools": "^8.2.1"
   }
 }
