@@ -45,7 +45,7 @@ public static class AuthServerExtension
                 .SetOrder(OpenIddictServerHandlers.GenerateAccessToken.Descriptor.Order - 1));
 
         o.AddEventHandler<ProcessSignInContext>(builder =>
-            builder.UseScopedHandler<AttachClientAudienceHandler>()
+            builder.UseScopedHandler<AttachClientIdHandler>()
                 .SetOrder(OpenIddictServerHandlers.GenerateAccessToken.Descriptor.Order - 1));
     }
 

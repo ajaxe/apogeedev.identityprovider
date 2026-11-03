@@ -253,6 +253,7 @@ public class Startup
         });
 
         services.AddScoped<ConfigureAccessTokenEncryption>();
+        services.AddScoped<AttachClientIdHandler>();
 
         services.AddHostedService<MongoDbPerformanceInitializer>();
         services.AddHostedService<ApplicationClientInitializer>();
