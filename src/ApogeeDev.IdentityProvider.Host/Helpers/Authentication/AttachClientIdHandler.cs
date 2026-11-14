@@ -18,12 +18,21 @@ public class AttachClientIdHandler(ILogger<AttachClientIdHandler> logger)
             return ValueTask.CompletedTask;
         }
 
-        if (context.AccessTokenPrincipal is not null &&
-            !context.AccessTokenPrincipal.HasClaim(Claims.ClientId, clientId))
+        if (context.AccessTokenPrincipal is not null)
         {
-            logger.LogInformation("Attaching Client ID {ClientId} as '{ClaimType}' claim to AccessTokenPrincipal.",
-                clientId, Claims.ClientId);
-            context.AccessTokenPrincipal.SetClaim(Claims.ClientId, clientId);
+            if (!context.AccessTokenPrincipal.HasClaim(Claims.ClientId, clientId))
+            {
+                logger.LogInformation("Attaching Client ID {ClientId} as '{ClaimType}' claim to AccessTokenPrincipal.",
+                    clientId, Claims.ClientId);
+                context.AccessTokenPrincipal.SetClaim(Claims.ClientId, clientId);
+            }
+
+            if (!context.AccessTokenPrincipal.GetResources().Any())
+            {
+                logger.LogInformation("Setting default resource (aud) to Client ID {ClientId} on AccessTokenPrincipal.",
+                    clientId);
+                context.AccessTokenPrincipal.SetResources(clientId);
+            }
         }
 
         return ValueTask.CompletedTask;

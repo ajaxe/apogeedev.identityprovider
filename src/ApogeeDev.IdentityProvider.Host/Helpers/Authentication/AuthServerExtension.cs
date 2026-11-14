@@ -27,6 +27,7 @@ public static class AuthServerExtension
             .SetTokenEndpointUris($"{AppPathPrefix}/connect/token")
             .SetEndSessionEndpointUris($"{AppPathPrefix}/connect/logout")
             .SetUserInfoEndpointUris($"{AppPathPrefix}/connect/userinfo")
+            .SetIntrospectionEndpointUris($"{AppPathPrefix}/connect/introspect")
             .AllowAuthorizationCodeFlow()
             .AllowRefreshTokenFlow()
             .AllowClientCredentialsFlow()
