@@ -31,7 +31,7 @@ public class AttachClientIdHandler(ILogger<AttachClientIdHandler> logger)
             {
                 logger.LogInformation("Setting default resource (aud) to Client ID {ClientId} on AccessTokenPrincipal.",
                     clientId);
-                context.AccessTokenPrincipal.SetResources(clientId);
+                context.AccessTokenPrincipal.SetAudiences(clientId);
             }
         }
 
