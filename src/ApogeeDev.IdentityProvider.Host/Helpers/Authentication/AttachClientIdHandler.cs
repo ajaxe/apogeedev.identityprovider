@@ -27,9 +27,9 @@ public class AttachClientIdHandler(ILogger<AttachClientIdHandler> logger)
                 context.AccessTokenPrincipal.SetClaim(Claims.ClientId, clientId);
             }
 
-            if (!context.AccessTokenPrincipal.GetResources().Any())
+            if (!context.AccessTokenPrincipal.GetAudiences().Any())
             {
-                logger.LogInformation("Setting default resource (aud) to Client ID {ClientId} on AccessTokenPrincipal.",
+                logger.LogInformation("Setting default audience (aud) to Client ID {ClientId} on AccessTokenPrincipal.",
                     clientId);
                 context.AccessTokenPrincipal.SetAudiences(clientId);
             }

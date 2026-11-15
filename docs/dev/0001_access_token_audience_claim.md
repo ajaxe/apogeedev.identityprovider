@@ -27,7 +27,7 @@ As a result, issued `access_token` JWTs omit the `aud` claim entirely. Upstream 
 | Option | Mechanism | Pros | Cons |
 | :--- | :--- | :--- | :--- |
 | **1. Configure `Audiences` / `Resources` per Client Registration** | Add a `string[] Audiences` property to `AppClientData`, store it in `OpenIddictApplicationDescriptor.Properties`, and call `context.AccessTokenPrincipal.SetResources(audiences)` in a `ProcessSignInContext` handler. | Supports decoupling client IDs from API resource identifiers and allows one client to target multiple distinct APIs. | Requires schema, validation, API, and UI (`idp-manager-app`) updates for client management. |
-| **2. Default `aud` to the Requesting `client_id` (Selected)** | In `AttachClientIdHandler` (`IOpenIddictServerHandler<ProcessSignInContext>`), set the requesting `client_id` as the default resource on `context.AccessTokenPrincipal` (`SetResources(clientId)`) when no explicit resources are assigned. | Zero database schema, API, or UI changes required; every issued `access_token` automatically includes `"aud": "<client_id>"`; enables standard `ValidateAudience = true` in upstream APIs. | Couples the expected `aud` claim in the upstream API to the client's `client_id` (requires `ValidAudiences` if multiple clients share one backend API). |
+| **2. Default `aud` to the Requesting `client_id` (Selected)** | In `AttachClientIdHandler` (`IOpenIddictServerHandler<ProcessSignInContext>`), set the requesting `client_id` as the default audience on `context.AccessTokenPrincipal` (`SetAudiences(clientId)`) when no explicit audiences are assigned. | Zero database schema, API, or UI changes required; every issued `access_token` automatically includes `"aud": "<client_id>"`; enables standard `ValidateAudience = true` in upstream APIs. | Couples the expected `aud` claim in the upstream API to the client's `client_id` (requires `ValidAudiences` if multiple clients share one backend API). |
 | **3. RFC 8707 `resource` Indicator Parameter** | Require OIDC clients to pass an explicit `resource=<api-uri>` query/form parameter on `/connect/authorize` and `/connect/token`, and call `principal.SetResources(request.GetResources())` in `OAuthController`. | Standards-based per-request audience selection without IdP UI changes. | Requires every client to configure and send custom `resource` parameters on both authorization and token requests. |
 
 ---
@@ -43,14 +43,14 @@ We selected **Option 2 (Defaulting `aud` to the Requesting `client_id`)** for th
 3. **Seamless Upstream `JwtBearer` Validation:**
    Upstream resource servers can enable `ValidateAudience = true` and set `Authentication:Audience` to the registered `ClientId`, achieving full cryptographic and audience binding with standard `JwtBearer` middleware.
 4. **Forward-Compatible with Explicit Resources:**
-   By guarding the assignment with `if (!context.AccessTokenPrincipal.GetResources().Any())`, the handler sets `client_id` as a fallback default. If future requirements introduce explicit resource scopes or per-client audience lists, those explicit resources will naturally take precedence without breaking existing clients.
+   By guarding the assignment with `if (!context.AccessTokenPrincipal.GetAudiences().Any())`, the handler sets `client_id` as a fallback default. If future requirements introduce explicit resource scopes or per-client audience lists (which OpenIddict's `PrepareAccessTokenPrincipal` translates from `Resources` into `Audiences`), those explicit audiences will naturally take precedence without breaking existing clients.
 
 ---
 
 ## 4. Resolution Steps
 
 ### Step 1: Update `AttachClientIdHandler` in `ApogeeDev.IdentityProvider.Host`
-In `src/ApogeeDev.IdentityProvider.Host/Helpers/Authentication/AttachClientIdHandler.cs`, call `SetResources(clientId)` on `context.AccessTokenPrincipal` when no resources have been explicitly set:
+In `src/ApogeeDev.IdentityProvider.Host/Helpers/Authentication/AttachClientIdHandler.cs`, call `SetAudiences(clientId)` on `context.AccessTokenPrincipal` when no audiences have been explicitly set:
 
 ```csharp
 using OpenIddict.Abstractions;
@@ -82,11 +82,11 @@ public class AttachClientIdHandler(ILogger<AttachClientIdHandler> logger)
                 context.AccessTokenPrincipal.SetClaim(Claims.ClientId, clientId);
             }
 
-            if (!context.AccessTokenPrincipal.GetResources().Any())
+            if (!context.AccessTokenPrincipal.GetAudiences().Any())
             {
-                logger.LogInformation("Setting default resource (aud) to Client ID {ClientId} on AccessTokenPrincipal.",
+                logger.LogInformation("Setting default audience (aud) to Client ID {ClientId} on AccessTokenPrincipal.",
                     clientId);
-                context.AccessTokenPrincipal.SetResources(clientId);
+                context.AccessTokenPrincipal.SetAudiences(clientId);
             }
         }
 
